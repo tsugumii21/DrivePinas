@@ -102,9 +102,19 @@ var ICONS = {
    NAVIGATION / ROUTING
    ================================================================ */
 
-/** Navigate to a hash route */
+/** Flag: when true, handleRoute() skips scroll-to-top and sets 'brands' active */
+var _pendingBrandsScroll = false;
+
+/** Navigate to a hash route — handles same-hash re-clicks */
 function navigateTo(route) {
-  window.location.hash = route;
+  var currentHash = window.location.hash.slice(1) || "home";
+  if (currentHash === route) {
+    // Already on this route — force re-render and scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    handleRoute();
+  } else {
+    window.location.hash = route;
+  }
 }
 
 /** Close mobile nav overlay */
@@ -142,8 +152,10 @@ function handleRoute() {
   // Close mobile nav if open
   closeMobileNav();
 
-  // Scroll to top
-  window.scrollTo(0, 0);
+  // Scroll to top (skip when brands scroll is pending)
+  if (!_pendingBrandsScroll) {
+    window.scrollTo(0, 0);
+  }
 
   // Route to correct view
   switch (route) {
@@ -175,7 +187,12 @@ function handleRoute() {
     case "home":
     default:
       showView("view-home");
-      setActiveNav("home");
+      if (_pendingBrandsScroll) {
+        setActiveNav("brands");
+        _pendingBrandsScroll = false;
+      } else {
+        setActiveNav("home");
+      }
       break;
   }
 
@@ -479,7 +496,40 @@ function renderUnitPage(slug, unitIndex) {
       "</div>" +
     "</div>";
 
-  detail.innerHTML = galleryHtml + specsHtml;
+  // Build sidebar: specs + reserve button + inline CTA
+  var sidebarHtml = specsHtml;
+
+  // Reserve Unit button (right below specs)
+  sidebarHtml +=
+    '<div style="margin-top:var(--sp-5)">' +
+      '<button class="unit-reserve-btn" onclick="navigateTo(\'contact\')" id="btnReserveUnit">' +
+        '<span>Reserve This Unit</span>' +
+        '<span class="unit-reserve-btn__icon">&rarr;</span>' +
+      '</button>' +
+    '</div>';
+
+  // Inline CTA card
+  sidebarHtml +=
+    '<div class="unit-inline-cta">' +
+      '<h3 class="unit-inline-cta__title">Interested in this unit?</h3>' +
+      '<p class="unit-inline-cta__subtitle">Get in touch for inquiries, test drives, or more details about this vehicle.</p>' +
+      '<div class="unit-inline-cta__actions">' +
+        '<a class="unit-inline-cta__link" href="tel:' + SITE_CONFIG.phoneTel + '">' +
+          '<span class="unit-inline-cta__link-icon">' + ICONS.phone + '</span>' +
+          '<span>' + SITE_CONFIG.phone + '</span>' +
+        '</a>' +
+        '<a class="unit-inline-cta__link" href="mailto:' + SITE_CONFIG.email + '">' +
+          '<span class="unit-inline-cta__link-icon">' + ICONS.email + '</span>' +
+          '<span>' + SITE_CONFIG.email + '</span>' +
+        '</a>' +
+        '<a class="unit-inline-cta__link" href="' + SITE_CONFIG.facebook + '" target="_blank" rel="noopener">' +
+          '<span class="unit-inline-cta__link-icon">' + ICONS.facebook + '</span>' +
+          '<span>' + SITE_CONFIG.facebookDisplay + '</span>' +
+        '</a>' +
+      '</div>' +
+    '</div>';
+
+  detail.innerHTML = galleryHtml + sidebarHtml;
 
   // Attach thumbnail click handlers
   var thumbs = detail.querySelectorAll(".gallery__thumb");
@@ -622,10 +672,10 @@ function renderFooter() {
       "</div>" +
       '<div class="footer__col">' +
         '<h4 class="footer__col-title">Contact</h4>' +
-        "<ul>" +
-          '<li><a href="mailto:' + SITE_CONFIG.email + '">' + SITE_CONFIG.email + "</a></li>" +
-          '<li><a href="tel:' + SITE_CONFIG.phoneTel + '">' + SITE_CONFIG.phone + "</a></li>" +
-          '<li><a href="' + SITE_CONFIG.facebook + '" target="_blank" rel="noopener">Facebook</a></li>' +
+        '<ul class="footer__contact-list">' +
+          '<li><a href="mailto:' + SITE_CONFIG.email + '"><span class="footer__contact-icon">' + ICONS.email + '</span><span>' + SITE_CONFIG.email + '</span></a></li>' +
+          '<li><a href="tel:' + SITE_CONFIG.phoneTel + '"><span class="footer__contact-icon">' + ICONS.phone + '</span><span>' + SITE_CONFIG.phone + '</span></a></li>' +
+          '<li><a href="' + SITE_CONFIG.facebook + '" target="_blank" rel="noopener"><span class="footer__contact-icon">' + ICONS.facebook + '</span><span>Facebook</span></a></li>' +
         "</ul>" +
       "</div>" +
     "</div>" +
@@ -640,23 +690,55 @@ function renderFooter() {
    ================================================================ */
 
 function renderContactPage() {
-  var grid = document.getElementById("contactGrid");
-  if (!grid) return;
+  var layout = document.getElementById("contactLayout");
+  if (!layout) return;
 
+  // === LEFT COLUMN: Contact Form Card ===
+  var formHtml =
+    '<div class="contact-form-card">' +
+      '<h2 class="contact-form-card__title">Send Us a Message</h2>' +
+      '<p class="contact-form-card__subtitle">Fill out the form below and we\'ll get back to you as soon as possible.</p>' +
+      '<form class="contact-form" id="contactForm" novalidate>' +
+        '<div class="contact-form__row">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="contactName">Full Name</label>' +
+            '<input class="contact-form__input" type="text" id="contactName" name="name" placeholder="Juan Dela Cruz" required>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="contactEmail">Email Address</label>' +
+            '<input class="contact-form__input" type="email" id="contactEmail" name="email" placeholder="juan@email.com" required>' +
+          '</div>' +
+        '</div>' +
+        '<div class="contact-form__field">' +
+          '<label class="contact-form__label" for="contactPhone">Phone Number</label>' +
+          '<input class="contact-form__input" type="tel" id="contactPhone" name="phone" placeholder="+63 9XX XXX XXXX">' +
+        '</div>' +
+        '<div class="contact-form__field">' +
+          '<label class="contact-form__label" for="contactMessage">Message</label>' +
+          '<textarea class="contact-form__textarea" id="contactMessage" name="message" placeholder="I\'m interested in a vehicle..." required></textarea>' +
+        '</div>' +
+        '<button type="submit" class="contact-form__submit" id="btnContactSubmit">' +
+          '<span>Send Message</span>' +
+          '<span class="contact-form__submit-icon">&rarr;</span>' +
+        '</button>' +
+      '</form>' +
+    '</div>';
+
+  // === RIGHT COLUMN: Info + Contact Cards ===
   var cards = [
-    {
-      icon: ICONS.email,
-      title: "Email",
-      desc: "Send us a message anytime",
-      link: "mailto:" + SITE_CONFIG.email,
-      linkText: SITE_CONFIG.email,
-    },
     {
       icon: ICONS.phone,
       title: "Phone",
       desc: "Call or text us",
       link: "tel:" + SITE_CONFIG.phoneTel,
       linkText: SITE_CONFIG.phone,
+    },
+    {
+      icon: ICONS.email,
+      title: "Email",
+      desc: "Send us a message anytime",
+      link: "mailto:" + SITE_CONFIG.email,
+      linkText: SITE_CONFIG.email,
     },
     {
       icon: ICONS.facebook,
@@ -674,7 +756,7 @@ function renderContactPage() {
     },
   ];
 
-  grid.innerHTML = "";
+  var cardsHtml = '';
   for (var i = 0; i < cards.length; i++) {
     var c = cards[i];
     var contentHtml;
@@ -688,18 +770,93 @@ function renderContactPage() {
       contentHtml = '<span class="contact-card__value">' + escapeHtml(c.value) + "</span>";
     }
 
-    var cardEl = document.createElement("div");
-    cardEl.className = "contact-card";
-    cardEl.innerHTML =
-      '<div class="contact-card__icon">' + c.icon + "</div>" +
-      "<div>" +
-        '<h3 class="contact-card__title">' + escapeHtml(c.title) + "</h3>" +
-        '<p class="contact-card__desc">' + escapeHtml(c.desc) + "</p>" +
-        contentHtml +
-      "</div>";
-
-    grid.appendChild(cardEl);
+    cardsHtml +=
+      '<div class="contact-card">' +
+        '<div class="contact-card__icon">' + c.icon + '</div>' +
+        '<div>' +
+          '<h3 class="contact-card__title">' + escapeHtml(c.title) + '</h3>' +
+          '<p class="contact-card__desc">' + escapeHtml(c.desc) + '</p>' +
+          contentHtml +
+        '</div>' +
+      '</div>';
   }
+
+  var infoHtml =
+    '<div class="contact-info">' +
+      '<div class="contact-info__intro">' +
+        '<h2 class="contact-info__intro-title">Let\'s Connect</h2>' +
+        '<p class="contact-info__intro-desc">Whether you\'re looking for your next car, have questions about our inventory, or want to schedule a test drive — we\'re here to help. Reach out through any of our channels below.</p>' +
+      '</div>' +
+      '<div class="contact-grid">' +
+        cardsHtml +
+      '</div>' +
+    '</div>';
+
+  layout.innerHTML = formHtml + infoHtml;
+
+  // Attach form submit handler
+  var form = document.getElementById("contactForm");
+  if (form) {
+    form.addEventListener("submit", handleContactFormSubmit);
+  }
+}
+
+/** Handle contact form submission with validation and toast */
+function handleContactFormSubmit(e) {
+  e.preventDefault();
+
+  var name = document.getElementById("contactName");
+  var email = document.getElementById("contactEmail");
+  var message = document.getElementById("contactMessage");
+
+  // Basic validation
+  if (!name.value.trim() || !email.value.trim() || !message.value.trim()) {
+    // Highlight empty required fields
+    if (!name.value.trim()) name.style.borderColor = "var(--color-accent)";
+    if (!email.value.trim()) email.style.borderColor = "var(--color-accent)";
+    if (!message.value.trim()) message.style.borderColor = "var(--color-accent)";
+    return;
+  }
+
+  // Reset field borders
+  name.style.borderColor = "";
+  email.style.borderColor = "";
+  message.style.borderColor = "";
+
+  // Clear form
+  e.target.reset();
+
+  // Show success toast
+  showContactToast();
+}
+
+/** Show a success toast notification */
+function showContactToast() {
+  // Remove existing toast if any
+  var existing = document.getElementById("contactToast");
+  if (existing) existing.remove();
+
+  var toast = document.createElement("div");
+  toast.className = "contact-toast";
+  toast.id = "contactToast";
+  toast.innerHTML =
+    '<span class="contact-toast__icon">✓</span>' +
+    '<span>Message sent successfully! We\'ll get back to you soon.</span>';
+
+  document.body.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(function () {
+    toast.classList.add("is-visible");
+  });
+
+  // Auto-dismiss after 4 seconds
+  setTimeout(function () {
+    toast.classList.remove("is-visible");
+    setTimeout(function () {
+      toast.remove();
+    }, 300);
+  }, 4000);
 }
 
 /* ================================================================
@@ -812,19 +969,34 @@ function initHamburger() {
 
 function scrollToBrands() {
   var currentHash = window.location.hash.slice(1) || "home";
-  if (currentHash === "home" || currentHash === "") {
+  var isHome = currentHash === "home" || currentHash === "";
+
+  if (isHome) {
+    // Already on home — scroll to brands and update nav state
     var section = document.getElementById("brandsSection");
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
     }
+    // Manually switch nav highlight to "brands"
+    var links = document.querySelectorAll(".nav__link");
+    for (var i = 0; i < links.length; i++) {
+      links[i].classList.remove("active");
+    }
+    setActiveNav("brands");
   } else {
-    navigateTo("home");
+    // Coming from another page — set flag so handleRoute()
+    // skips scroll-to-top and highlights "brands" instead of "home"
+    _pendingBrandsScroll = true;
+    window.location.hash = "home";
+    // After view renders, scroll to brands section
     setTimeout(function () {
-      var section = document.getElementById("brandsSection");
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth" });
-      }
-    }, ANIMATION_CONFIG.brandsScrollDelayMs);
+      requestAnimationFrame(function () {
+        var section = document.getElementById("brandsSection");
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    }, 150);
   }
 }
 
