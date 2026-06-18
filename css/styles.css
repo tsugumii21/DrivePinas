@@ -309,7 +309,7 @@ ul, ol {
 }
 
 .nav__logo-img {
-  height: 48px;
+  height: 32px;
   width: auto;
   filter: invert(1) hue-rotate(180deg);
 }
@@ -2285,7 +2285,7 @@ ul, ol {
   }
 
   .nav__logo-img {
-    height: 36px;
+    height: 24px;
   }
 
   .nav__logo-text {
