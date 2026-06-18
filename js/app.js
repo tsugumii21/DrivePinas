@@ -410,11 +410,11 @@ function renderUnitPage(slug, unitIndex) {
   var unit = brand.units[unitIndex];
   var fullName = unit.year + " " + brand.name + " " + unit.name;
 
-  // Breadcrumb
+  // Breadcrumb — first crumb goes back to the brand page
   var breadcrumb = document.getElementById("unitBreadcrumb");
   if (breadcrumb) {
     breadcrumb.innerHTML =
-      '<a href="#home">Home</a>' +
+      '<a href="#brand/' + escapeHtml(brand.slug) + '">Brands</a>' +
       '<span class="page-header__breadcrumb-sep">›</span>' +
       '<a href="#brand/' + escapeHtml(brand.slug) + '">' + escapeHtml(brand.name) + "</a>" +
       '<span class="page-header__breadcrumb-sep">›</span>' +
@@ -972,6 +972,44 @@ function initNavScrollEffect() {
   window.addEventListener("scroll", handleScroll, { passive: true });
 }
 
+/**
+ * Track scroll position on home view to keep nav active state in sync.
+ * When brandsSection is in view → highlight "brands", otherwise "home".
+ */
+function initHomeScrollNavTracking() {
+  if (!("IntersectionObserver" in window)) return;
+
+  var brandsSection = document.getElementById("brandsSection");
+  if (!brandsSection) return;
+
+  var brandsSectionObserver = new IntersectionObserver(
+    function (entries) {
+      // Only act when we are actually on the home view
+      var hash = window.location.hash.slice(1) || "home";
+      if (hash !== "home" && hash !== "") return;
+
+      if (entries[0].isIntersecting) {
+        // Brands section scrolled into view
+        var allLinks = document.querySelectorAll(".nav__link");
+        for (var i = 0; i < allLinks.length; i++) allLinks[i].classList.remove("active");
+        setActiveNav("brands");
+      } else {
+        // Brands section scrolled out — check if we are above it (hero visible)
+        var rect = brandsSection.getBoundingClientRect();
+        if (rect.top > 0) {
+          // User scrolled back up above brands section
+          var allLinks2 = document.querySelectorAll(".nav__link");
+          for (var j = 0; j < allLinks2.length; j++) allLinks2[j].classList.remove("active");
+          setActiveNav("home");
+        }
+      }
+    },
+    { threshold: 0.15 }
+  );
+
+  brandsSectionObserver.observe(brandsSection);
+}
+
 /** Back to top button */
 function initBackToTop() {
   var btn = document.getElementById("backToTop");
@@ -1060,6 +1098,7 @@ function init() {
   initBackToTop();
   initNavScrollEffect();
   initRevealObserver();
+  initHomeScrollNavTracking();
 
   // Start routing
   window.addEventListener("hashchange", handleRoute);

@@ -843,12 +843,12 @@ ul, ol {
 }
 
 .brand-card__logo {
-  width: 68px;
-  height: 68px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   border-radius: var(--radius-md);
-  background: var(--color-surface);
-  padding: var(--sp-2);
+  background: #ffffff;
+  padding: var(--sp-3);
   transition: transform var(--duration-base) var(--ease-out);
 }
 
@@ -857,12 +857,12 @@ ul, ol {
 }
 
 .brand-card__fallback {
-  width: 68px;
-  height: 68px;
+  width: 88px;
+  height: 88px;
   display: none;
   align-items: center;
   justify-content: center;
-  background: var(--color-surface);
+  background: #ffffff;
   border-radius: var(--radius-md);
   font-size: var(--fs-xl);
   font-weight: var(--fw-bold);
@@ -916,13 +916,13 @@ ul, ol {
   }
 
   .brand-card__logo {
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
   }
 
   .brand-card__fallback {
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
     font-size: var(--fs-lg);
   }
 
@@ -946,8 +946,8 @@ ul, ol {
   }
 
   .brand-card__logo {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
   }
 }
 
