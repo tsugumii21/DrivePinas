@@ -342,7 +342,7 @@ function renderBrandPage(slug) {
   var breadcrumb = document.getElementById("brandBreadcrumb");
   if (breadcrumb) {
     breadcrumb.innerHTML =
-      '<a href="#home">Home</a>' +
+      '<a href="#home">Brands</a>' +
       '<span class="page-header__breadcrumb-sep">›</span>' +
       '<span class="page-header__breadcrumb-current">' + escapeHtml(brand.name) + "</span>";
   }
