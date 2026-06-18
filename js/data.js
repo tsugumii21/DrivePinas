@@ -52,6 +52,9 @@ const ANIMATION_CONFIG = {
   navScrollThreshold: 50,
   debounceMs: 10,
   brandsScrollDelayMs: 400,
+  routeScrollDelayMs: 150,
+  toastDurationMs: 4000,
+  toastRemoveDelayMs: 300,
 };
 
 /* ----------------------------------------------------------------
@@ -61,7 +64,7 @@ const BRANDS = [
   {
     name: "Toyota",
     slug: "toyota",
-    logo: "https://logo.clearbit.com/toyota.com",
+    logo: "images/brands/Toyota.png",
     units: [
       {
         name: "Vios 1.3 XLE CVT",
@@ -124,7 +127,7 @@ const BRANDS = [
   {
     name: "Honda",
     slug: "honda",
-    logo: "https://logo.clearbit.com/honda.com",
+    logo: "images/brands/Honda.png",
     units: [
       {
         name: "Civic 1.5 RS Turbo CVT",
@@ -173,7 +176,7 @@ const BRANDS = [
   {
     name: "Mitsubishi",
     slug: "mitsubishi",
-    logo: "https://logo.clearbit.com/mitsubishi-motors.com",
+    logo: "images/brands/Mitsubishi.png",
     units: [
       {
         name: "Montero Sport 2.4 GT 4x2 AT",
@@ -222,7 +225,7 @@ const BRANDS = [
   {
     name: "Suzuki",
     slug: "suzuki",
-    logo: "https://logo.clearbit.com/globalsuzuki.com",
+    logo: "images/brands/Suzuki.png",
     units: [
       {
         name: "Ertiga 1.5 GL AT",
@@ -271,7 +274,7 @@ const BRANDS = [
   {
     name: "Ford",
     slug: "ford",
-    logo: "https://logo.clearbit.com/ford.com",
+    logo: "images/brands/Ford.png",
     units: [
       {
         name: "Ranger 2.0 Wildtrak 4x2 AT",
@@ -334,7 +337,7 @@ const BRANDS = [
   {
     name: "Nissan",
     slug: "nissan",
-    logo: "https://logo.clearbit.com/nissan.com",
+    logo: "images/brands/Nissan.png",
     units: [
       {
         name: "Navara 2.5 VL 4x2 AT",
@@ -383,7 +386,7 @@ const BRANDS = [
   {
     name: "Hyundai",
     slug: "hyundai",
-    logo: "https://logo.clearbit.com/hyundai.com",
+    logo: "images/brands/Hyundai.png",
     units: [
       {
         name: "Accent 1.4 GL AT",
@@ -432,7 +435,7 @@ const BRANDS = [
   {
     name: "Kia",
     slug: "kia",
-    logo: "https://logo.clearbit.com/kia.com",
+    logo: "images/brands/Kia.png",
     units: [
       {
         name: "Seltos 2.0 EX IVT",

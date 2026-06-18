@@ -155,6 +155,8 @@ function handleRoute() {
   // Scroll to top (skip when brands scroll is pending)
   if (!_pendingBrandsScroll) {
     window.scrollTo(0, 0);
+  } else {
+    _pendingBrandsScroll = false;
   }
 
   // Route to correct view
@@ -808,26 +810,68 @@ function handleContactFormSubmit(e) {
   var name = document.getElementById("contactName");
   var email = document.getElementById("contactEmail");
   var message = document.getElementById("contactMessage");
+  var submitBtn = document.getElementById("btnContactSubmit");
 
-  // Basic validation
-  if (!name.value.trim() || !email.value.trim() || !message.value.trim()) {
-    // Highlight empty required fields
-    if (!name.value.trim()) name.style.borderColor = "var(--color-accent)";
-    if (!email.value.trim()) email.style.borderColor = "var(--color-accent)";
-    if (!message.value.trim()) message.style.borderColor = "var(--color-accent)";
-    return;
+  var hasError = false;
+
+  // Clear borders dynamically on edit (Emil style)
+  var clearBorder = function (el) {
+    el.addEventListener("input", function handler() {
+      el.style.borderColor = "";
+      el.removeEventListener("input", handler);
+    });
+  };
+
+  // Validate Name
+  if (!name.value.trim()) {
+    name.style.borderColor = "var(--color-accent)";
+    clearBorder(name);
+    hasError = true;
   }
 
-  // Reset field borders
-  name.style.borderColor = "";
-  email.style.borderColor = "";
-  message.style.borderColor = "";
+  // Validate Email
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.value.trim() || !emailRegex.test(email.value.trim())) {
+    email.style.borderColor = "var(--color-accent)";
+    clearBorder(email);
+    hasError = true;
+  }
 
-  // Clear form
-  e.target.reset();
+  // Validate Message
+  if (!message.value.trim()) {
+    message.style.borderColor = "var(--color-accent)";
+    clearBorder(message);
+    hasError = true;
+  }
 
-  // Show success toast
-  showContactToast();
+  if (hasError) return;
+
+  // Submit button visual feedback
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    var originalBtnHtml = submitBtn.innerHTML;
+    submitBtn.innerHTML = "<span>Sending...</span>";
+  }
+
+  // Simulate network dispatch with a slight delay
+  setTimeout(function () {
+    // Reset field borders
+    name.style.borderColor = "";
+    email.style.borderColor = "";
+    message.style.borderColor = "";
+
+    // Clear form
+    e.target.reset();
+
+    // Show success toast
+    showContactToast();
+
+    // Restore submit button
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
+  }, 800);
 }
 
 /** Show a success toast notification */
@@ -839,6 +883,8 @@ function showContactToast() {
   var toast = document.createElement("div");
   toast.className = "contact-toast";
   toast.id = "contactToast";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
   toast.innerHTML =
     '<span class="contact-toast__icon">✓</span>' +
     '<span>Message sent successfully! We\'ll get back to you soon.</span>';
@@ -850,13 +896,13 @@ function showContactToast() {
     toast.classList.add("is-visible");
   });
 
-  // Auto-dismiss after 4 seconds
+  // Auto-dismiss using ANIMATION_CONFIG properties
   setTimeout(function () {
     toast.classList.remove("is-visible");
     setTimeout(function () {
       toast.remove();
-    }, 300);
-  }, 4000);
+    }, ANIMATION_CONFIG.toastRemoveDelayMs);
+  }, ANIMATION_CONFIG.toastDurationMs);
 }
 
 /* ================================================================
@@ -996,7 +1042,7 @@ function scrollToBrands() {
           section.scrollIntoView({ behavior: "smooth" });
         }
       });
-    }, 150);
+    }, ANIMATION_CONFIG.routeScrollDelayMs);
   }
 }
 
