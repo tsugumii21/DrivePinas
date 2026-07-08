@@ -809,6 +809,7 @@ function handleContactFormSubmit(e) {
 
   var name = document.getElementById("contactName");
   var email = document.getElementById("contactEmail");
+  var phone = document.getElementById("contactPhone");
   var message = document.getElementById("contactMessage");
   var submitBtn = document.getElementById("btnContactSubmit");
 
@@ -846,6 +847,12 @@ function handleContactFormSubmit(e) {
 
   if (hasError) return;
 
+  // Get dynamic field values
+  var nameVal = name.value.trim();
+  var emailVal = email.value.trim();
+  var phoneVal = phone ? phone.value.trim() : "";
+  var messageVal = message.value.trim();
+
   // Submit button visual feedback
   if (submitBtn) {
     submitBtn.disabled = true;
@@ -855,6 +862,44 @@ function handleContactFormSubmit(e) {
 
   // Simulate network dispatch with a slight delay
   setTimeout(function () {
+    // Save to local storage for admin inbox
+    var stored = localStorage.getItem("dp_admin_data");
+    var adminDb = { brands: [], messages: [], notifications: [], acquisitions: [], nextCarId: 100, nextNotificationId: 10 };
+    if (stored) {
+      try {
+        adminDb = JSON.parse(stored);
+      } catch (err) {
+        // use default
+      }
+    }
+
+    if (!adminDb.messages) adminDb.messages = [];
+    if (!adminDb.notifications) adminDb.notifications = [];
+    if (!adminDb.nextNotificationId) adminDb.nextNotificationId = 10;
+
+    var newMsg = {
+      id: Math.floor(Math.random() * 90000) + 10000,
+      name: nameVal,
+      email: emailVal,
+      phone: phoneVal,
+      message: messageVal,
+      time: new Date().toISOString(),
+      read: false
+    };
+
+    adminDb.messages.unshift(newMsg);
+
+    adminDb.notifications.unshift({
+      id: adminDb.nextNotificationId++,
+      type: "message",
+      title: "New Inquiry from " + nameVal,
+      message: messageVal.substring(0, 100) + (messageVal.length > 100 ? "..." : ""),
+      time: new Date().toISOString(),
+      read: false
+    });
+
+    localStorage.setItem("dp_admin_data", JSON.stringify(adminDb));
+
     // Reset field borders
     name.style.borderColor = "";
     email.style.borderColor = "";
@@ -1084,11 +1129,33 @@ function scrollToBrands() {
   }
 }
 
+/** Load database from localStorage if it exists to sync with admin panel */
+function initDatabase() {
+  var stored = localStorage.getItem("dp_admin_data");
+  if (stored) {
+    try {
+      var db = JSON.parse(stored);
+      if (db && db.brands && db.brands.length > 0) {
+        // Clear the const BRANDS array and push dynamic data to preserve reference
+        BRANDS.length = 0;
+        db.brands.forEach(function (b) {
+          BRANDS.push(b);
+        });
+      }
+    } catch (e) {
+      console.error("Failed to sync BRANDS from localStorage", e);
+    }
+  }
+}
+
 /* ================================================================
    INITIALIZE
    ================================================================ */
 
 function init() {
+  // Load dynamic data first
+  initDatabase();
+
   // Render static content
   renderHomePage();
   renderContactPage();

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>DrivePinas — Admin Panel</title>
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Admin CSS -->
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <img src="images/logo.png" alt="DrivePinas Logo" class="login-card__logo">
+      <h1 class="login-card__title">Admin Panel</h1>
+      <p class="login-card__subtitle">Enter your password to continue</p>
+      <form id="loginForm">
+        <input type="password" class="login-card__input" id="loginPassword" placeholder="Enter admin password" autocomplete="current-password" required>
+        <div class="login-card__error" id="loginError"></div>
+        <button type="submit" class="login-card__btn" id="loginBtn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN LAYOUT -->
+  <div class="admin-layout" id="adminLayout" style="display:none;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__brand">
+        <img src="images/logo.png" alt="DrivePinas Logo" class="sidebar__brand-logo">
+        <span class="sidebar__brand-text">
+          <span class="sidebar__brand-drive">Drive</span><span class="sidebar__brand-pinas">Pinas</span>
+        </span>
+        <span class="sidebar__brand-badge">Admin</span>
+      </div>
+
+      <nav class="sidebar__nav">
+        <span class="sidebar__label">Main</span>
+        <button class="sidebar__link active" data-view="dashboard" type="button">
+          <i class="fa-solid fa-table-cells-large"></i> Dashboard
+        </button>
+        <button class="sidebar__link" data-view="inbox" type="button">
+          <i class="fa-solid fa-envelope"></i> Inbox
+          <span class="sidebar__link-badge" id="inboxBadge">0</span>
+        </button>
+        <button class="sidebar__link" data-view="inventory" type="button">
+          <i class="fa-solid fa-car"></i> Inventory
+        </button>
+        <button class="sidebar__link" data-view="acquisitions" type="button">
+          <i class="fa-solid fa-hand-holding-dollar"></i> Acquisitions
+          <span class="sidebar__link-badge sidebar__link-badge--success sidebar__link-badge--hidden" id="acqBadge">0</span>
+        </button>
+
+        <span class="sidebar__label">Manage</span>
+        <button class="sidebar__link" data-view="add-car" type="button">
+          <i class="fa-solid fa-circle-plus"></i> Add Listing
+        </button>
+        <button class="sidebar__link" data-view="analytics" type="button">
+          <i class="fa-solid fa-chart-simple"></i> Analytics
+        </button>
+        <button class="sidebar__link" data-view="settings" type="button">
+          <i class="fa-solid fa-gear"></i> Settings
+        </button>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="sidebar__user">
+          <div class="sidebar__avatar" id="sidebarAvatar">DP</div>
+          <div>
+            <div class="sidebar__user-name" id="sidebarUserName">Admin</div>
+            <div class="sidebar__user-role" id="sidebarUserRole">DrivePinas Manager</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar__left">
+          <button class="topbar__hamburger" id="hamburgerBtn" type="button" aria-label="Toggle Navigation Sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <span class="topbar__title" id="topbarTitle">Dashboard</span>
+          <span class="topbar__subtitle" id="topbarSubtitle">Overview of your portal</span>
+        </div>
+        <div class="topbar__actions">
+          <div style="position:relative;display:inline-block;">
+            <button class="topbar__btn" id="notifBtn" type="button" aria-label="Toggle Notifications" title="Notifications">
+              <i class="fa-solid fa-bell"></i>
+              <span class="topbar__btn-dot topbar__btn-dot--hidden" id="notifDot"></span>
+            </button>
+            <!-- Notifications Dropdown -->
+            <div class="notif-dropdown" id="notifDropdown">
+              <div class="notif-dropdown__header">
+                <span class="notif-dropdown__title"><i class="fa-solid fa-bell"></i> Notifications</span>
+                <button type="button" class="notif-dropdown__mark-read" id="markAllReadBtn">Mark all read</button>
+              </div>
+              <div class="notif-dropdown__list" id="notifDropdownList"></div>
+              <div class="notif-dropdown__footer">
+                <button type="button" class="notif-dropdown__clear" id="clearAllNotifsBtn">Clear all notifications</button>
+              </div>
+            </div>
+          </div>
+          <a class="topbar__btn" href="index.html" title="View Site" target="_blank" aria-label="View Site">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+          <button class="topbar__btn" id="logoutBtn" type="button" title="Logout" aria-label="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <!-- DASHBOARD VIEW -->
+        <div class="admin-view active" id="view-dashboard">
+          <div class="metrics-grid" id="metricsGrid"></div>
+          <div class="dashboard-grid">
+            <div class="panel">
+              <div class="panel__header">
+                <h3 class="panel__title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h3>
+                <button class="panel__action" data-view="inbox" type="button">View All</button>
+              </div>
+              <div class="panel__body" id="activityFeed"></div>
+            </div>
+            <div class="panel">
+              <div class="panel__header">
+                <h3 class="panel__title"><i class="fa-solid fa-chart-pie"></i> Inventory Breakdown</h3>
+              </div>
+              <div class="panel__body" id="quickStats"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INBOX VIEW -->
+        <div class="admin-view" id="view-inbox">
+          <div class="inbox-toolbar">
+            <div class="inbox-search">
+              <i class="fa-solid fa-search"></i>
+              <input type="text" placeholder="Search messages..." id="inboxSearchInput">
+            </div>
+            <div class="inbox-filters" id="inboxFilters">
+              <button class="inbox-filter-btn active" data-filter="all" type="button">All</button>
+              <button class="inbox-filter-btn" data-filter="unread" type="button">Unread</button>
+              <button class="inbox-filter-btn" data-filter="read" type="button">Read</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel__header">
+              <h3 class="panel__title"><i class="fa-solid fa-inbox"></i> Messages</h3>
+              <span class="panel__action" id="inboxCount" style="cursor:default;"></span>
+            </div>
+            <div class="panel__body" id="inboxList"></div>
+          </div>
+        </div>
+
+        <!-- INVENTORY VIEW -->
+        <div class="admin-view" id="view-inventory">
+          <div class="inventory-toolbar">
+            <div class="inventory-toolbar__left">
+              <div class="inbox-search search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search cars..." id="inventorySearchInput">
+              </div>
+              <select class="form-select filter-select" id="brandFilter">
+                <option value="all">All Brands</option>
+              </select>
+              <select class="form-select filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="sale">For Sale</option>
+                <option value="rent">For Rent</option>
+                <option value="sold">Sold</option>
+              </select>
+            </div>
+            <button class="btn btn--primary" id="addCarFromInventoryBtn" type="button">
+              <i class="fa-solid fa-plus"></i> Add Car
+            </button>
+          </div>
+          <div class="panel">
+            <div class="panel__header">
+              <h3 class="panel__title"><i class="fa-solid fa-car-side"></i> Car Listings</h3>
+              <span class="panel__action" id="inventoryCount" style="cursor:default;"></span>
+            </div>
+            <div class="panel__body data-table__wrapper">
+              <table class="data-table" id="inventoryTable">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Year</th>
+                    <th>Price</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Channels</th>
+                    <th>Featured</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADD / EDIT CAR VIEW -->
+        <div class="admin-view" id="view-add-car">
+          <div class="panel">
+            <div class="panel__header">
+              <h3 class="panel__title"><i class="fa-solid fa-plus-circle"></i> <span id="formTitle">Add New Listing</span></h3>
+              <button class="btn btn--outline btn--sm" id="backToInventoryBtn" type="button">
+                <i class="fa-solid fa-arrow-left"></i> Back
+              </button>
+            </div>
+            <div class="panel__body panel__body--padded">
+              <form id="carForm">
+                <input type="hidden" id="editIndex" value="">
+                <input type="hidden" id="editBrandSlug" value="">
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="carBrand">Brand</label>
+                    <select class="form-select" id="carBrand" required></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carName">Model / Name</label>
+                    <input class="form-input" type="text" id="carName" placeholder="e.g. Vios 1.3 XLE CVT" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carYear">Year</label>
+                    <input class="form-input" type="number" id="carYear" placeholder="2024" min="1990" max="2030" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carPrice">Price (₱)</label>
+                    <input class="form-input" type="number" id="carPrice" placeholder="850000">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carOdometer">Odometer</label>
+                    <input class="form-input" type="text" id="carOdometer" placeholder="18,500 km">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carTransmission">Transmission</label>
+                    <select class="form-select" id="carTransmission" required>
+                      <option value="Automatic">Automatic</option>
+                      <option value="Manual">Manual</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carFuel">Fuel Type</label>
+                    <select class="form-select" id="carFuel" required>
+                      <option value="Gasoline">Gasoline</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="Hybrid">Hybrid</option>
+                      <option value="Electric">Electric</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="carBody">Body Type</label>
+                    <select class="form-select" id="carBody" required>
+                      <option value="Sedan">Sedan</option>
+                      <option value="SUV">SUV</option>
+                      <option value="Pickup">Pickup</option>
+                      <option value="MPV">MPV</option>
+                      <option value="Hatchback">Hatchback</option>
+                      <option value="Van">Van</option>
+                      <option value="Coupe">Coupe</option>
+                    </select>
+                  </div>
+
+                  <!-- Image Paths (Option 1) -->
+                  <div class="form-group form-group--full">
+                    <label class="form-label" for="carImages">Image Paths</label>
+                    <input class="form-input" type="text" id="carImages" placeholder="e.g. images/cars/vios-1.jpg, images/cars/vios-2.jpg">
+                    <span class="form-help-text">Comma-separated file paths relative to project root. Place images in the <code>images/cars/</code> folder.</span>
+                  </div>
+
+                  <!-- Listing Type -->
+                  <div class="form-group form-group--full">
+                    <label class="form-label">Listing Type</label>
+                    <div class="form-listing-type" id="listingTypeGroup">
+                      <label class="listing-type-option selected--sale" data-type="sale">
+                        <input type="radio" name="listingType" value="sale" checked>
+                        <i class="fa-solid fa-tag"></i> For Sale
+                      </label>
+                      <label class="listing-type-option" data-type="rent">
+                        <input type="radio" name="listingType" value="rent">
+                        <i class="fa-solid fa-key"></i> For Rent
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Contact Channels -->
+                  <div class="form-group form-group--full">
+                    <label class="form-label">Lead Contact Channels</label>
+                    <div class="form-channels" id="channelsGroup">
+                      <label class="form-channel checked" data-channel="facebook">
+                        <input type="checkbox" name="channel_facebook" value="facebook" checked>
+                        <i class="fa-brands fa-facebook"></i> Facebook
+                      </label>
+                      <label class="form-channel" data-channel="instagram">
+                        <input type="checkbox" name="channel_instagram" value="instagram">
+                        <i class="fa-brands fa-instagram"></i> Instagram
+                      </label>
+                      <label class="form-channel checked" data-channel="gmail">
+                        <input type="checkbox" name="channel_gmail" value="gmail" checked>
+                        <i class="fa-brands fa-google"></i> Gmail
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group form-group--full">
+                    <label class="form-label" for="carCondition">Condition Notes</label>
+                    <textarea class="form-textarea" id="carCondition" placeholder="Describe the vehicle condition..."></textarea>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn--primary">
+                    <i class="fa-solid fa-check"></i> <span id="formSubmitText">Add Listing</span>
+                  </button>
+                  <button type="button" class="btn btn--outline" id="cancelCarFormBtn">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div class="admin-view" id="view-analytics">
+          <div class="panel" style="margin-bottom:28px;">
+            <div class="panel__header">
+              <h3 class="panel__title"><i class="fa-solid fa-chart-bar"></i> Platform Performance Analytics</h3>
+              <span class="analytics-demo-badge"><i class="fa-solid fa-flask"></i> Demo Data</span>
+            </div>
+            <div class="panel__body panel__body--padded" id="adminAnalyticsCharts"></div>
+          </div>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div>
+                <div class="metric-card__value" id="analTotalViews">0</div>
+                <div class="metric-card__label">Total Platform Views</div>
+              </div>
+              <div class="metric-card__icon metric-card__icon--info"><i class="fa-solid fa-eye"></i></div>
+            </div>
+            <div class="metric-card">
+              <div>
+                <div class="metric-card__value" id="analConversionRate">—</div>
+                <div class="metric-card__label">Lead Conversion Rate</div>
+              </div>
+              <div class="metric-card__icon metric-card__icon--warning"><i class="fa-solid fa-bolt"></i></div>
+            </div>
+            <div class="metric-card">
+              <div>
+                <div class="metric-card__value" id="analTotalLeads">0</div>
+                <div class="metric-card__label">Total Inquiries Generated</div>
+              </div>
+              <div class="metric-card__icon metric-card__icon--accent"><i class="fa-solid fa-envelope"></i></div>
+            </div>
+            <div class="metric-card">
+              <div>
+                <div class="metric-card__value" id="analTotalRevenue">₱0</div>
+                <div class="metric-card__label">Total Catalog Valuation</div>
+              </div>
+              <div class="metric-card__icon metric-card__icon--success"><i class="fa-solid fa-coins"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
+        <div class="admin-view" id="view-settings">
+          <div class="panel">
+            <div class="panel__header">
+              <h3 class="panel__title"><i class="fa-solid fa-gear"></i> System &amp; Admin Configurations</h3>
+            </div>
+            <div class="panel__body panel__body--padded">
+              <form id="adminSettingsForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="adminName">Administrator Name</label>
+                    <input class="form-input" type="text" id="adminName" placeholder="Admin Manager" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="adminRole">Admin Role</label>
+                    <input class="form-input" type="text" id="adminRole" placeholder="DrivePinas Manager" required>
+                  </div>
+                  <div class="form-group form-group--full">
+                    <h4 class="section-heading">Application Configuration</h4>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="configSound">Notification Audio Alert</label>
+                    <select class="form-select" id="configSound">
+                      <option value="enabled">Enabled (Chime)</option>
+                      <option value="disabled">Disabled (Silent)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="configCurrency">Currency Display</label>
+                    <select class="form-select" id="configCurrency">
+                      <option value="PHP">Philippine Peso (₱)</option>
+                      <option value="USD">US Dollar ($)</option>
+                    </select>
+                  </div>
+                  <div class="form-group form-group--full">
+                    <h4 class="section-heading">Security</h4>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="newPassword">Change Password</label>
+                    <input class="form-input" type="password" id="newPassword" placeholder="New password (leave blank to keep current)">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <input class="form-input" type="password" id="confirmPassword" placeholder="Confirm new password">
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn--primary"><i class="fa-solid fa-save"></i> Save Settings</button>
+                  <button type="button" class="btn btn--danger" id="resetDatabaseBtn"><i class="fa-solid fa-trash-arrow-up"></i> Reset Platform Database</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACQUISITIONS VIEW -->
+        <div class="admin-view" id="view-acquisitions">
+          <div class="panel">
+            <div class="panel__header">
+              <h3 class="panel__title"><i class="fa-solid fa-hand-holding-dollar"></i> Pending Car Acquisitions</h3>
+              <span class="panel__action" id="acqCount" style="cursor:default;">0 offers pending</span>
+            </div>
+            <div class="panel__body data-table__wrapper">
+              <table class="data-table" id="acquisitionsTable">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Year</th>
+                    <th>Asking Price</th>
+                    <th>Odometer</th>
+                    <th>Specs</th>
+                    <th>Seller Info</th>
+                    <th>Condition</th>
+                    <th class="text-right--padded">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="acquisitionsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.content -->
+    </div><!-- /.main -->
+  </div><!-- /.admin-layout -->
+
+  <!-- MESSAGE DETAIL MODAL -->
+  <div class="modal-overlay" id="messageModal">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Message Details</h3>
+        <button class="modal__close" id="closeMessageModalBtn" type="button" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal__body" id="modalBody"></div>
+      <div class="modal__footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <!-- BUY VEHICLE MODAL -->
+  <div class="modal-overlay" id="buyModal">
+    <div class="modal modal--narrow">
+      <div class="modal__header">
+        <h3 class="modal__title">Buy 2nd Hand Car for Inventory</h3>
+        <button class="modal__close" id="closeBuyModalBtn" type="button" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal__body">
+        <form id="buyForm">
+          <input type="hidden" id="buyAcqId" value="">
+          <div class="buy-details">
+            <div class="buy-details__title" id="buyCarTitle"></div>
+            <div class="buy-details__specs" id="buyCarSpecs"></div>
+            <div class="buy-details__seller" id="buySellerLink"></div>
+            <div class="buy-details__price">Asking Price: <span id="buyAskingPrice"></span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="buyRetailPrice">Set Retail Selling Price (₱)</label>
+            <input class="form-input" type="number" id="buyRetailPrice" placeholder="e.g. 520000" required>
+            <span class="form-help-text">This is the price that clients will see in the showroom.</span>
+          </div>
+          <div class="form-actions form-actions--end">
+            <button type="button" class="btn btn--outline" id="cancelBuyBtn">Cancel</button>
+            <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Acquire &amp; List for Sale</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="admin-toast" id="adminToast">
+    <div class="admin-toast__icon" id="toastIcon"><i class="fa-solid fa-check"></i></div>
+    <span id="toastText">Action completed</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
