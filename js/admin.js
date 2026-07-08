@@ -1255,42 +1255,6 @@ function initEventListeners() {
   document.getElementById('addCarFromInventoryBtn').addEventListener('click', function() {
     switchView('add-car');
   });
-
-  // Generate Test Acquisition Offer button
-  var testBtn = document.getElementById('createTestAcqBtn');
-  if (testBtn) {
-    testBtn.addEventListener('click', function() {
-      if (!adminData.acquisitions) adminData.acquisitions = [];
-      
-      // Check if the test offer is already in the list to avoid duplicate test actions
-      var exists = adminData.acquisitions.some(function(x) { return x.id === 98765; });
-      if (exists) {
-        showToast('Test offer already exists in list', 'warning');
-        return;
-      }
-
-      adminData.acquisitions.push({
-        id: 98765,
-        brandSlug: "mitsubishi",
-        brandName: "Mitsubishi",
-        name: "Mirage G4 1.2 GLX CVT",
-        year: 2021,
-        price: 450000,
-        odometer: "25,000 km",
-        transmission: "Automatic",
-        fuel: "Gasoline",
-        body: "Sedan",
-        contactLink: "seller@gmail.com",
-        condition: "Pristine condition, first owner, complete papers.",
-        time: new Date().toISOString()
-      });
-      saveData();
-      renderAcquisitions();
-      updateNotificationBadge();
-      showToast('Generated test acquisition offer', 'success');
-    });
-  }
-
   // Form submission and validation actions
   document.getElementById('carForm').addEventListener('submit', handleCarFormSubmit);
   document.getElementById('backToInventoryBtn').addEventListener('click', function() {
