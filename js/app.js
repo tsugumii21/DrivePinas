@@ -929,17 +929,17 @@ function renderSellPage() {
         '<h3 class="contact-form-card__title" style="margin-top:var(--sp-6); margin-bottom:var(--sp-4); text-align:center;">Seller Information</h3>' +
         '<div class="contact-form__row">' +
           '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="contactName">Full Name</label>' +
-            '<input class="contact-form__input" type="text" id="contactName" placeholder="Juan Dela Cruz" required>' +
+            '<label class="contact-form__label" for="sellName">Full Name</label>' +
+            '<input class="contact-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required>' +
           '</div>' +
           '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="contactEmail">Email Address</label>' +
-            '<input class="contact-form__input" type="email" id="contactEmail" placeholder="juan@email.com" required>' +
+            '<label class="contact-form__label" for="sellEmail">Email Address</label>' +
+            '<input class="contact-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required>' +
           '</div>' +
         '</div>' +
         '<div class="contact-form__field">' +
-          '<label class="contact-form__label" for="contactPhone">Phone Number</label>' +
-          '<input class="contact-form__input" type="tel" id="contactPhone" placeholder="+63 9XX XXX XXXX">' +
+          '<label class="contact-form__label" for="sellPhone">Phone Number</label>' +
+          '<input class="contact-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX">' +
         '</div>' +
 
         '<button type="submit" class="contact-form__submit" id="btnSellSubmit">' +
@@ -1073,9 +1073,9 @@ function handleContactFormSubmit(e) {
 function handleSellFormSubmit(e) {
   e.preventDefault();
 
-  var name = e.target.querySelector("#contactName");
-  var email = e.target.querySelector("#contactEmail");
-  var phone = e.target.querySelector("#contactPhone");
+  var name = e.target.querySelector("#sellName");
+  var email = e.target.querySelector("#sellEmail");
+  var phone = e.target.querySelector("#sellPhone");
   var tradeModel = document.getElementById("tradeModel");
   var tradeYear = document.getElementById("tradeYear");
   var tradePrice = document.getElementById("tradePrice");
