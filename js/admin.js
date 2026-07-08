@@ -147,24 +147,14 @@ function initData() {
   }
 
   // Seed sample contact messages
-  adminData.messages = [
-    { id: 1, name: "Juan Dela Cruz", email: "juan@email.com", phone: "+63 917 123 4567", message: "Hi! I'm interested in the Toyota Fortuner 2022. Is it still available? Can I schedule a test drive this weekend?", time: "2026-07-06T07:30:00", read: false },
-    { id: 2, name: "Maria Santos", email: "maria.santos@gmail.com", phone: "+63 928 987 6543", message: "Good day! How much is the down payment for the Honda Civic RS? Do you offer financing options?", time: "2026-07-05T15:20:00", read: false },
-    { id: 3, name: "Pedro Reyes", email: "pedro.reyes@yahoo.com", phone: "+63 905 555 1234", message: "I saw the Ford Ranger Wildtrak on your site. I'm looking for a pickup truck for my business. Can we negotiate the price?", time: "2026-07-05T09:45:00", read: false },
-    { id: 4, name: "Ana Garcia", email: "ana.garcia@outlook.com", phone: "+63 917 888 9999", message: "Hi DrivePinas! I'm looking for a family SUV, budget around 1.5M. What do you recommend?", time: "2026-07-04T14:10:00", read: true },
-    { id: 5, name: "Carlo Mendoza", email: "carlo.m@gmail.com", phone: "+63 933 444 5555", message: "Is the Hyundai Tucson still available? I'd like to visit your showroom to see it in person.", time: "2026-07-03T11:00:00", read: true }
-  ];
+  adminData.messages = [];
 
-  adminData.notifications = [
-    { id: 1, type: "system", title: "System Ready", message: "DrivePinas admin panel initialized successfully.", time: new Date().toISOString(), read: false }
-  ];
+  adminData.notifications = [];
 
-  adminData.acquisitions = [
-    { id: 98765, brandSlug: "mitsubishi", brandName: "Mitsubishi", name: "Mirage G4 1.2 GLX CVT", year: 2021, price: 450000, odometer: "25,000 km", transmission: "Automatic", fuel: "Gasoline", body: "Sedan", contactLink: "seller@gmail.com", condition: "Superb condition, complete records, slight scratch on rear fender.", time: new Date(Date.now() - 3600000 * 2).toISOString() }
-  ];
+  adminData.acquisitions = [];
 
   adminData.nextCarId = nextId;
-  adminData.nextNotificationId = 2;
+  adminData.nextNotificationId = 1;
   saveData();
 }
 
@@ -553,7 +543,7 @@ function renderInventory() {
   document.querySelectorAll('[data-delete-car]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var parts = this.getAttribute('data-delete-car').split('|');
-      deleteCar(parts[0], parseInt(parts[1]);
+      deleteCar(parts[0], parseInt(parts[1]));
     });
   });
 }
