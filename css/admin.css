@@ -152,7 +152,7 @@ textarea {
 .login-card__logo {
   height: 48px;
   width: auto;
-  margin-bottom: 24px;
+  filter: invert(1) hue-rotate(180deg);
 }
 
 .login-card__title {
@@ -252,6 +252,7 @@ textarea {
 .sidebar__brand-logo {
   height: 36px;
   width: auto;
+  filter: invert(1) hue-rotate(180deg);
 }
 
 .sidebar__brand-text {
