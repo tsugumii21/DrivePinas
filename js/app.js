@@ -40,7 +40,7 @@ function getAllFeaturedCars() {
   for (var b = 0; b < BRANDS.length; b++) {
     var brand = BRANDS[b];
     for (var u = 0; u < brand.units.length; u++) {
-      if (brand.units[u].featured) {
+      if (brand.units[u].featured && brand.units[u].active !== false) {
         featured.push({ brand: brand, unit: brand.units[u], index: u });
       }
     }
@@ -53,7 +53,7 @@ function getTotalAvailableCount() {
   var count = 0;
   for (var b = 0; b < BRANDS.length; b++) {
     for (var u = 0; u < BRANDS[b].units.length; u++) {
-      if (!BRANDS[b].units[u].sold) {
+      if (!BRANDS[b].units[u].sold && BRANDS[b].units[u].active !== false) {
         count++;
       }
     }
@@ -94,6 +94,8 @@ var ICONS = {
     '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>',
   facebook:
     '<svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>',
+  instagram:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>',
   location:
     '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>',
 };
@@ -188,6 +190,7 @@ function handleRoute() {
 
     case "home":
     default:
+      renderHomePage();
       showView("view-home");
       if (_pendingBrandsScroll) {
         setActiveNav("brands");
@@ -352,7 +355,7 @@ function renderBrandPage(slug) {
   if (header) {
     var availableCount = 0;
     for (var u = 0; u < brand.units.length; u++) {
-      if (!brand.units[u].sold) availableCount++;
+      if (!brand.units[u].sold && brand.units[u].active !== false) availableCount++;
     }
 
     header.innerHTML =
@@ -370,7 +373,9 @@ function renderBrandPage(slug) {
   if (!grid) return;
   grid.innerHTML = "";
 
-  if (brand.units.length === 0) {
+  var visibleUnits = brand.units.filter(function(u) { return u.active !== false; });
+
+  if (visibleUnits.length === 0) {
     grid.innerHTML =
       '<div class="empty-state">' +
         '<div class="empty-state__icon">🚗</div>' +
@@ -380,6 +385,7 @@ function renderBrandPage(slug) {
   }
 
   for (var i = 0; i < brand.units.length; i++) {
+    if (brand.units[i].active === false) continue;
     var card = createCarCard(brand, brand.units[i], i, i, false);
     grid.appendChild(card);
   }
@@ -408,6 +414,10 @@ function renderUnitPage(slug, unitIndex) {
   }
 
   var unit = brand.units[unitIndex];
+  if (unit.active === false) {
+    navigateTo("home");
+    return;
+  }
   var fullName = unit.year + " " + brand.name + " " + unit.name;
 
   // Breadcrumb — first crumb goes back to the brand page
@@ -510,24 +520,50 @@ function renderUnitPage(slug, unitIndex) {
       '</button>' +
     '</div>';
 
+  // Build dynamic CTA links based on active channels
+  var ctaLinksHtml = '';
+  
+  // Phone is always present as a direct link
+  ctaLinksHtml +=
+    '<a class="unit-inline-cta__link" href="tel:' + SITE_CONFIG.phoneTel + '">' +
+      '<span class="unit-inline-cta__link-icon">' + ICONS.phone + '</span>' +
+      '<span>' + SITE_CONFIG.phone + '</span>' +
+    '</a>';
+
+  var showGmail = !unit.channels || unit.channels.indexOf('gmail') > -1;
+  if (showGmail) {
+    ctaLinksHtml +=
+      '<a class="unit-inline-cta__link" href="mailto:' + SITE_CONFIG.email + '">' +
+        '<span class="unit-inline-cta__link-icon">' + ICONS.email + '</span>' +
+        '<span>' + SITE_CONFIG.email + '</span>' +
+      '</a>';
+  }
+
+  var showFacebook = !unit.channels || unit.channels.indexOf('facebook') > -1;
+  if (showFacebook) {
+    ctaLinksHtml +=
+      '<a class="unit-inline-cta__link" href="' + SITE_CONFIG.facebook + '" target="_blank" rel="noopener">' +
+        '<span class="unit-inline-cta__link-icon">' + ICONS.facebook + '</span>' +
+        '<span>' + SITE_CONFIG.facebookDisplay + '</span>' +
+      '</a>';
+  }
+
+  var showInstagram = unit.channels && unit.channels.indexOf('instagram') > -1;
+  if (showInstagram) {
+    ctaLinksHtml +=
+      '<a class="unit-inline-cta__link" href="' + SITE_CONFIG.instagram + '" target="_blank" rel="noopener">' +
+        '<span class="unit-inline-cta__link-icon">' + ICONS.instagram + '</span>' +
+        '<span>' + SITE_CONFIG.instagramDisplay + '</span>' +
+      '</a>';
+  }
+
   // Inline CTA card
   sidebarHtml +=
     '<div class="unit-inline-cta">' +
       '<h3 class="unit-inline-cta__title">Interested in this unit?</h3>' +
       '<p class="unit-inline-cta__subtitle">Get in touch for inquiries, test drives, or more details about this vehicle.</p>' +
       '<div class="unit-inline-cta__actions">' +
-        '<a class="unit-inline-cta__link" href="tel:' + SITE_CONFIG.phoneTel + '">' +
-          '<span class="unit-inline-cta__link-icon">' + ICONS.phone + '</span>' +
-          '<span>' + SITE_CONFIG.phone + '</span>' +
-        '</a>' +
-        '<a class="unit-inline-cta__link" href="mailto:' + SITE_CONFIG.email + '">' +
-          '<span class="unit-inline-cta__link-icon">' + ICONS.email + '</span>' +
-          '<span>' + SITE_CONFIG.email + '</span>' +
-        '</a>' +
-        '<a class="unit-inline-cta__link" href="' + SITE_CONFIG.facebook + '" target="_blank" rel="noopener">' +
-          '<span class="unit-inline-cta__link-icon">' + ICONS.facebook + '</span>' +
-          '<span>' + SITE_CONFIG.facebookDisplay + '</span>' +
-        '</a>' +
+        ctaLinksHtml +
       '</div>' +
     '</div>';
 
@@ -621,6 +657,10 @@ function createCarCard(brand, unit, unitIndex, staggerIndex, showFeaturedBadge) 
   var badgesHtml = "";
   if (unit.sold) {
     badgesHtml += '<span class="car-card__badge car-card__badge--sold">Sold</span>';
+  } else {
+    var typeText = unit.listingType === 'rent' ? 'For Rent' : 'For Sale';
+    var typeClass = unit.listingType === 'rent' ? 'rent' : 'sale';
+    badgesHtml += '<span class="car-card__badge car-card__badge--' + typeClass + '">' + typeText + '</span>';
   }
   if (showFeaturedBadge && unit.featured && !unit.sold) {
     badgesHtml += '<span class="car-card__badge car-card__badge--featured">★ Featured</span>';
@@ -687,10 +727,6 @@ function renderFooter() {
     "</div>";
 }
 
-/* ================================================================
-   RENDER: CONTACT PAGE
-   ================================================================ */
-
 function renderContactPage() {
   var layout = document.getElementById("contactLayout");
   if (!layout) return;
@@ -698,9 +734,15 @@ function renderContactPage() {
   // === LEFT COLUMN: Contact Form Card ===
   var formHtml =
     '<div class="contact-form-card">' +
-      '<h2 class="contact-form-card__title">Send Us a Message</h2>' +
-      '<p class="contact-form-card__subtitle">Fill out the form below and we\'ll get back to you as soon as possible.</p>' +
+      '<div class="form-toggle-bar">' +
+        '<button type="button" class="form-toggle-btn active" id="btnToggleInquiry">Send Inquiry</button>' +
+        '<button type="button" class="form-toggle-btn" id="btnToggleTradeIn">Sell / Trade-in</button>' +
+      '</div>' +
+      '<h2 class="contact-form-card__title" id="contactFormTitle">Send Us a Message</h2>' +
+      '<p class="contact-form-card__subtitle" id="contactFormSubtitle">Fill out the form below and we\'ll get back to you as soon as possible.</p>' +
       '<form class="contact-form" id="contactForm" novalidate>' +
+        '<input type="hidden" id="contactFormType" value="inquiry">' +
+        
         '<div class="contact-form__row">' +
           '<div class="contact-form__field">' +
             '<label class="contact-form__label" for="contactName">Full Name</label>' +
@@ -715,12 +757,89 @@ function renderContactPage() {
           '<label class="contact-form__label" for="contactPhone">Phone Number</label>' +
           '<input class="contact-form__input" type="tel" id="contactPhone" name="phone" placeholder="+63 9XX XXX XXXX">' +
         '</div>' +
-        '<div class="contact-form__field">' +
-          '<label class="contact-form__label" for="contactMessage">Message</label>' +
-          '<textarea class="contact-form__textarea" id="contactMessage" name="message" placeholder="I\'m interested in a vehicle..." required></textarea>' +
+
+        // --- INQUIRY MODE FIELDS (visible by default) ---
+        '<div id="inquiryFieldsGroup">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="contactMessage">Message</label>' +
+            '<textarea class="contact-form__textarea" id="contactMessage" name="message" placeholder="I\'m interested in a vehicle..." required></textarea>' +
+          '</div>' +
         '</div>' +
+
+        // --- TRADE-IN MODE FIELDS (hidden by default) ---
+        '<div id="tradeInFieldsGroup" style="display:none;">' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeBrand">Brand</label>' +
+              '<select class="contact-form__select" id="tradeBrand">' +
+                '<option value="toyota">Toyota</option>' +
+                '<option value="honda">Honda</option>' +
+                '<option value="mitsubishi">Mitsubishi</option>' +
+                '<option value="nissan">Nissan</option>' +
+                '<option value="ford">Ford</option>' +
+                '<option value="mazda">Mazda</option>' +
+                '<option value="suzuki">Suzuki</option>' +
+                '<option value="hyundai">Hyundai</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeModel">Model / Name</label>' +
+              '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Mirage G4 1.2 GLX">' +
+            '</div>' +
+          '</div>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeYear">Year Model</label>' +
+              '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030">' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradePrice">Asking Price (₱)</label>' +
+              '<input class="contact-form__input" type="number" id="tradePrice" placeholder="500000">' +
+            '</div>' +
+          '</div>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeOdometer">Odometer</label>' +
+              '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 25,000 km">' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeTransmission">Transmission</label>' +
+              '<select class="contact-form__select" id="tradeTransmission">' +
+                '<option value="Automatic">Automatic</option>' +
+                '<option value="Manual">Manual</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeFuel">Fuel Type</label>' +
+              '<select class="contact-form__select" id="tradeFuel">' +
+                '<option value="Gasoline">Gasoline</option>' +
+                '<option value="Diesel">Diesel</option>' +
+                '<option value="Hybrid">Hybrid</option>' +
+                '<option value="Electric">Electric</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeBody">Body Type</label>' +
+              '<select class="contact-form__select" id="tradeBody">' +
+                '<option value="Sedan">Sedan</option>' +
+                '<option value="SUV">SUV</option>' +
+                '<option value="Pickup">Pickup</option>' +
+                '<option value="MPV">MPV</option>' +
+                '<option value="Hatchback">Hatchback</option>' +
+                '<option value="Van">Van</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeCondition">Condition Notes</label>' +
+            '<textarea class="contact-form__textarea" id="tradeCondition" placeholder="Describe the vehicle condition..."></textarea>' +
+          '</div>' +
+        '</div>' +
+
         '<button type="submit" class="contact-form__submit" id="btnContactSubmit">' +
-          '<span>Send Message</span>' +
+          '<span id="submitBtnText">Send Message</span>' +
           '<span class="contact-form__submit-icon">&rarr;</span>' +
         '</button>' +
       '</form>' +
@@ -733,40 +852,43 @@ function renderContactPage() {
       title: "Phone",
       desc: "Call or text us",
       link: "tel:" + SITE_CONFIG.phoneTel,
+      value: SITE_CONFIG.phone,
       linkText: SITE_CONFIG.phone,
     },
     {
       icon: ICONS.email,
       title: "Email",
-      desc: "Send us a message anytime",
+      desc: "Send us an email",
       link: "mailto:" + SITE_CONFIG.email,
+      value: SITE_CONFIG.email,
       linkText: SITE_CONFIG.email,
     },
     {
       icon: ICONS.facebook,
       title: "Facebook",
-      desc: "Follow us for the latest units",
+      desc: "Message us on Messenger",
       link: SITE_CONFIG.facebook,
+      value: SITE_CONFIG.facebookDisplay,
       linkText: SITE_CONFIG.facebookDisplay,
-      external: true,
     },
     {
       icon: ICONS.location,
-      title: "Location",
-      desc: "Visit our showroom",
+      title: "Showroom",
+      desc: "Visit our location",
       value: SITE_CONFIG.location,
     },
   ];
 
-  var cardsHtml = '';
+  var cardsHtml = "";
   for (var i = 0; i < cards.length; i++) {
     var c = cards[i];
-    var contentHtml;
-
+    var contentHtml = "";
     if (c.link) {
       contentHtml =
-        '<a class="contact-card__link" href="' + c.link + '"' +
-        (c.external ? ' target="_blank" rel="noopener"' : "") +
+        '<a class="contact-card__value contact-card__value--link" href="' +
+        c.link +
+        '"' +
+        (c.title === "Facebook" ? ' target="_blank" rel="noopener"' : "") +
         ">" + escapeHtml(c.linkText) + "</a>";
     } else {
       contentHtml = '<span class="contact-card__value">' + escapeHtml(c.value) + "</span>";
@@ -796,6 +918,40 @@ function renderContactPage() {
 
   layout.innerHTML = formHtml + infoHtml;
 
+  // Bind toggling click events
+  var toggleInquiry = document.getElementById("btnToggleInquiry");
+  var toggleTradeIn = document.getElementById("btnToggleTradeIn");
+  var formTypeInput = document.getElementById("contactFormType");
+  var inquiryGroup = document.getElementById("inquiryFieldsGroup");
+  var tradeInGroup = document.getElementById("tradeInFieldsGroup");
+  var submitText = document.getElementById("submitBtnText");
+  var formTitle = document.getElementById("contactFormTitle");
+  var formSubtitle = document.getElementById("contactFormSubtitle");
+
+  if (toggleInquiry && toggleTradeIn && formTypeInput && inquiryGroup && tradeInGroup) {
+    toggleInquiry.addEventListener("click", function() {
+      toggleInquiry.classList.add("active");
+      toggleTradeIn.classList.remove("active");
+      formTypeInput.value = "inquiry";
+      inquiryGroup.style.display = "block";
+      tradeInGroup.style.display = "none";
+      submitText.textContent = "Send Message";
+      formTitle.textContent = "Send Us a Message";
+      formSubtitle.textContent = "Fill out the form below and we'll get back to you as soon as possible.";
+    });
+
+    toggleTradeIn.addEventListener("click", function() {
+      toggleTradeIn.classList.add("active");
+      toggleInquiry.classList.remove("active");
+      formTypeInput.value = "tradein";
+      inquiryGroup.style.display = "none";
+      tradeInGroup.style.display = "block";
+      submitText.textContent = "Submit Offer";
+      formTitle.textContent = "Sell / Trade-in Your Car";
+      formSubtitle.textContent = "Provide your vehicle's specifications below to receive a trade-in offer.";
+    });
+  }
+
   // Attach form submit handler
   var form = document.getElementById("contactForm");
   if (form) {
@@ -812,6 +968,7 @@ function handleContactFormSubmit(e) {
   var phone = document.getElementById("contactPhone");
   var message = document.getElementById("contactMessage");
   var submitBtn = document.getElementById("btnContactSubmit");
+  var formType = document.getElementById("contactFormType").value;
 
   var hasError = false;
 
@@ -838,11 +995,34 @@ function handleContactFormSubmit(e) {
     hasError = true;
   }
 
-  // Validate Message
-  if (!message.value.trim()) {
-    message.style.borderColor = "var(--color-accent)";
-    clearBorder(message);
-    hasError = true;
+  if (formType === "inquiry") {
+    // Validate Message
+    if (!message.value.trim()) {
+      message.style.borderColor = "var(--color-accent)";
+      clearBorder(message);
+      hasError = true;
+    }
+  } else {
+    // Validate Trade-in fields
+    var tradeModel = document.getElementById("tradeModel");
+    var tradeYear = document.getElementById("tradeYear");
+    var tradePrice = document.getElementById("tradePrice");
+
+    if (!tradeModel.value.trim()) {
+      tradeModel.style.borderColor = "var(--color-accent)";
+      clearBorder(tradeModel);
+      hasError = true;
+    }
+    if (!tradeYear.value.trim() || parseInt(tradeYear.value) < 1990 || parseInt(tradeYear.value) > 2030) {
+      tradeYear.style.borderColor = "var(--color-accent)";
+      clearBorder(tradeYear);
+      hasError = true;
+    }
+    if (!tradePrice.value.trim() || parseInt(tradePrice.value) <= 0) {
+      tradePrice.style.borderColor = "var(--color-accent)";
+      clearBorder(tradePrice);
+      hasError = true;
+    }
   }
 
   if (hasError) return;
@@ -851,7 +1031,7 @@ function handleContactFormSubmit(e) {
   var nameVal = name.value.trim();
   var emailVal = email.value.trim();
   var phoneVal = phone ? phone.value.trim() : "";
-  var messageVal = message.value.trim();
+  var messageVal = message ? message.value.trim() : "";
 
   // Submit button visual feedback
   if (submitBtn) {
@@ -877,33 +1057,84 @@ function handleContactFormSubmit(e) {
     if (!adminDb.notifications) adminDb.notifications = [];
     if (!adminDb.nextNotificationId) adminDb.nextNotificationId = 10;
 
-    var newMsg = {
-      id: Math.floor(Math.random() * 90000) + 10000,
-      name: nameVal,
-      email: emailVal,
-      phone: phoneVal,
-      message: messageVal,
-      time: new Date().toISOString(),
-      read: false
-    };
+    if (formType === "inquiry") {
+      var newMsg = {
+        id: Math.floor(Math.random() * 90000) + 10000,
+        name: nameVal,
+        email: emailVal,
+        phone: phoneVal,
+        message: messageVal,
+        time: new Date().toISOString(),
+        read: false
+      };
 
-    adminDb.messages.unshift(newMsg);
+      adminDb.messages.unshift(newMsg);
 
-    adminDb.notifications.unshift({
-      id: adminDb.nextNotificationId++,
-      type: "message",
-      title: "New Inquiry from " + nameVal,
-      message: messageVal.substring(0, 100) + (messageVal.length > 100 ? "..." : ""),
-      time: new Date().toISOString(),
-      read: false
-    });
+      adminDb.notifications.unshift({
+        id: adminDb.nextNotificationId++,
+        type: "message",
+        title: "New Inquiry from " + nameVal,
+        message: messageVal.substring(0, 100) + (messageVal.length > 100 ? "..." : ""),
+        time: new Date().toISOString(),
+        read: false
+      });
+    } else {
+      var brandSelect = document.getElementById("tradeBrand");
+      var brandName = brandSelect.options[brandSelect.selectedIndex].text;
+      var brandSlug = brandSelect.value;
+      
+      var tradeModelVal = document.getElementById("tradeModel").value.trim();
+      var tradeYearVal = parseInt(document.getElementById("tradeYear").value);
+      var tradePriceVal = parseInt(document.getElementById("tradePrice").value);
+      var tradeOdometerVal = document.getElementById("tradeOdometer").value.trim() || "N/A";
+      var tradeTransmissionVal = document.getElementById("tradeTransmission").value;
+      var tradeFuelVal = document.getElementById("tradeFuel").value;
+      var tradeBodyVal = document.getElementById("tradeBody").value;
+      var tradeConditionVal = document.getElementById("tradeCondition").value.trim() || "Good condition.";
+
+      if (!adminDb.acquisitions) adminDb.acquisitions = [];
+
+      var newAcq = {
+        id: Math.floor(Math.random() * 90000) + 10000,
+        brandSlug: brandSlug,
+        brandName: brandName,
+        name: tradeModelVal,
+        year: tradeYearVal,
+        price: tradePriceVal,
+        odometer: tradeOdometerVal,
+        transmission: tradeTransmissionVal,
+        fuel: tradeFuelVal,
+        body: tradeBodyVal,
+        contactLink: emailVal,
+        condition: tradeConditionVal,
+        time: new Date().toISOString()
+      };
+
+      adminDb.acquisitions.unshift(newAcq);
+
+      adminDb.notifications.unshift({
+        id: adminDb.nextNotificationId++,
+        type: "acquisition",
+        title: "New Trade-in Offer: " + brandName + " " + tradeModelVal,
+        message: "Asking Price: ₱" + tradePriceVal.toLocaleString() + " | Year: " + tradeYearVal,
+        time: new Date().toISOString(),
+        read: false
+      });
+    }
 
     localStorage.setItem("dp_admin_data", JSON.stringify(adminDb));
 
     // Reset field borders
     name.style.borderColor = "";
     email.style.borderColor = "";
-    message.style.borderColor = "";
+    if (message) message.style.borderColor = "";
+    
+    var tradeModelEl = document.getElementById("tradeModel");
+    var tradeYearEl = document.getElementById("tradeYear");
+    var tradePriceEl = document.getElementById("tradePrice");
+    if (tradeModelEl) tradeModelEl.style.borderColor = "";
+    if (tradeYearEl) tradeYearEl.style.borderColor = "";
+    if (tradePriceEl) tradePriceEl.style.borderColor = "";
 
     // Clear form
     e.target.reset();
@@ -1178,3 +1409,12 @@ if (document.readyState === "loading") {
 } else {
   init();
 }
+
+// Storage event listener to sync data and update UI in real-time across tabs
+window.addEventListener("storage", function (e) {
+  if (e.key === "dp_admin_data") {
+    initDatabase();
+    // Re-run router to refresh the active view with new data
+    handleRoute();
+  }
+});

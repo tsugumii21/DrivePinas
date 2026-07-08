@@ -212,6 +212,7 @@
                     <th>Status</th>
                     <th>Channels</th>
                     <th>Featured</th>
+                    <th>Status</th>
                     <th class="text-right">Actions</th>
                   </tr>
                 </thead>
@@ -303,6 +304,25 @@
                       <label class="listing-type-option" data-type="rent">
                         <input type="radio" name="listingType" value="rent">
                         <i class="fa-solid fa-key"></i> For Rent
+                      </label>
+                      <label class="listing-type-option" data-type="sold">
+                        <input type="radio" name="listingType" value="sold">
+                        <i class="fa-solid fa-circle-xmark"></i> Sold
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Visibility Status -->
+                  <div class="form-group form-group--full">
+                    <label class="form-label">Visibility Status</label>
+                    <div class="form-listing-type" id="visibilityGroup">
+                      <label class="listing-type-option selected--active" data-type="active">
+                        <input type="radio" name="carVisibility" value="active" checked>
+                        <i class="fa-solid fa-eye"></i> Active (Visible)
+                      </label>
+                      <label class="listing-type-option" data-type="hidden">
+                        <input type="radio" name="carVisibility" value="hidden">
+                        <i class="fa-solid fa-eye-slash"></i> Hidden
                       </label>
                     </div>
                   </div>
@@ -444,7 +464,10 @@
           <div class="panel">
             <div class="panel__header">
               <h3 class="panel__title"><i class="fa-solid fa-hand-holding-dollar"></i> Pending Car Acquisitions</h3>
-              <span class="panel__action" id="acqCount" style="cursor:default;">0 offers pending</span>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn--outline btn--sm" id="createTestAcqBtn" type="button"><i class="fa-solid fa-flask"></i> Generate Test Offer</button>
+                <span class="panel__action" id="acqCount" style="cursor:default;">0 offers pending</span>
+              </div>
             </div>
             <div class="panel__body data-table__wrapper">
               <table class="data-table" id="acquisitionsTable">

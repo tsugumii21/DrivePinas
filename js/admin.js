@@ -136,6 +136,7 @@ function initData() {
           condition: unit.condition || 'Excellent condition.',
           sold: unit.sold || false,
           featured: unit.featured || false,
+          active: unit.active !== false,
           listingType: 'sale',
           channels: ['facebook', 'gmail'],
           images: images,
@@ -477,7 +478,7 @@ function renderInventory() {
 
   if (!cars.length) {
     document.getElementById('inventoryBody').innerHTML =
-      '<tr><td colspan="8"><div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-car"></i></div><div class="empty-state__title">No cars found</div></div></td></tr>';
+      '<tr><td colspan="9"><div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-car"></i></div><div class="empty-state__title">No cars found</div></div></td></tr>';
     return;
   }
 
@@ -507,7 +508,7 @@ function renderInventory() {
     html +=
       '<tr>' +
       '<td><div class="car-row__name">' +
-      '<img class="car-row__thumb" src="' + imgSrc + '" alt="" onerror="this.style.display=\'none\'">' +
+      '<img class="car-row__thumb" src="' + imgSrc + '" alt="" onerror="this.src=\'https://picsum.photos/seed/placeholder/104/72\'">' +
       '<div class="car-row__info"><span class="car-row__title">' + escapeHtml(unit.name) + '</span><span class="car-row__brand">' + escapeHtml(c.brand.name) + '</span></div>' +
       '</div></td>' +
       '<td>' + unit.year + '</td>' +
@@ -516,6 +517,7 @@ function renderInventory() {
       '<td><span class="status-badge status-badge--' + statusClass + ' status-badge--dot">' + statusText + '</span></td>' +
       '<td><div class="channel-icons">' + channelHtml + '</div></td>' +
       '<td><label class="toggle"><input type="checkbox" ' + (unit.featured ? 'checked' : '') + ' data-toggle-featured="' + c.brand.slug + '|' + c.brandIndex + '"><span class="toggle__slider"></span></label></td>' +
+      '<td><label class="toggle"><input type="checkbox" ' + (unit.active !== false ? 'checked' : '') + ' data-toggle-active="' + c.brand.slug + '|' + c.brandIndex + '"><span class="toggle__slider"></span></label></td>' +
       '<td><div class="car-row__actions text-right">' +
       '<button class="car-row__btn" title="Edit" data-edit-car="' + c.brand.slug + '|' + c.brandIndex + '"><i class="fa-solid fa-pen"></i></button>' +
       '<button class="car-row__btn car-row__btn--danger" title="Delete" data-delete-car="' + c.brand.slug + '|' + c.brandIndex + '"><i class="fa-solid fa-trash"></i></button>' +
@@ -530,6 +532,13 @@ function renderInventory() {
     input.addEventListener('change', function() {
       var parts = this.getAttribute('data-toggle-featured').split('|');
       toggleFeatured(parts[0], parseInt(parts[1]), this.checked);
+    });
+  });
+
+  document.querySelectorAll('[data-toggle-active]').forEach(function(input) {
+    input.addEventListener('change', function() {
+      var parts = this.getAttribute('data-toggle-active').split('|');
+      toggleActive(parts[0], parseInt(parts[1]), this.checked);
     });
   });
   
@@ -562,6 +571,14 @@ function toggleFeatured(brandSlug, unitIndex, val) {
   var brand = adminData.brands.find(function(b) { return b.slug === brandSlug; });
   if (brand && brand.units[unitIndex]) {
     brand.units[unitIndex].featured = val;
+    saveData();
+  }
+}
+
+function toggleActive(brandSlug, unitIndex, val) {
+  var brand = adminData.brands.find(function(b) { return b.slug === brandSlug; });
+  if (brand && brand.units[unitIndex]) {
+    brand.units[unitIndex].active = val;
     saveData();
   }
 }
@@ -614,10 +631,22 @@ function editCar(brandSlug, unitIndex) {
   document.getElementById('carImages').value = (u.imagePaths || []).join(', ');
 
   // Listing type
-  document.querySelectorAll('.listing-type-option').forEach(function(opt) {
-    opt.classList.remove('selected--sale', 'selected--rent');
+  var currentType = u.sold ? 'sold' : (u.listingType || 'sale');
+  document.querySelectorAll('#listingTypeGroup .listing-type-option').forEach(function(opt) {
+    opt.classList.remove('selected--sale', 'selected--rent', 'selected--sold');
     var radio = opt.querySelector('input');
-    if (radio.value === (u.listingType || 'sale')) {
+    if (radio.value === currentType) {
+      radio.checked = true;
+      opt.classList.add('selected--' + radio.value);
+    }
+  });
+
+  // Visibility status
+  var currentVisibility = u.active !== false ? 'active' : 'hidden';
+  document.querySelectorAll('#visibilityGroup .listing-type-option').forEach(function(opt) {
+    opt.classList.remove('selected--active', 'selected--hidden');
+    var radio = opt.querySelector('input');
+    if (radio.value === currentVisibility) {
       radio.checked = true;
       opt.classList.add('selected--' + radio.value);
     }
@@ -653,6 +682,11 @@ function handleCarFormSubmit(e) {
   });
 
   var listingType = document.querySelector('input[name="listingType"]:checked').value;
+  var isSold = listingType === 'sold';
+  var actualListingType = isSold ? 'sale' : listingType;
+
+  var carVisibility = document.querySelector('input[name="carVisibility"]:checked').value;
+  var isActive = carVisibility === 'active';
 
   var imagePathsRaw = document.getElementById('carImages').value.trim();
   var imagePaths = imagePathsRaw ? imagePathsRaw.split(',').map(function(p) { return p.trim(); }).filter(Boolean) : [];
@@ -667,9 +701,10 @@ function handleCarFormSubmit(e) {
     fuel: document.getElementById('carFuel').value,
     body: document.getElementById('carBody').value,
     condition: document.getElementById('carCondition').value.trim(),
-    sold: false,
+    sold: isSold,
     featured: false,
-    listingType: listingType,
+    active: isActive,
+    listingType: actualListingType,
     channels: channels,
     images: [Math.floor(Math.random() * 900) + 100],
     imagePaths: imagePaths
@@ -683,8 +718,9 @@ function handleCarFormSubmit(e) {
     if (editBrand && editBrand.units[parseInt(editIndex)]) {
       var existing = editBrand.units[parseInt(editIndex)];
       carData.id = existing.id;
-      carData.sold = existing.sold;
+      carData.sold = isSold;
       carData.featured = existing.featured;
+      carData.active = isActive;
       if (!imagePaths.length) carData.images = existing.images;
 
       // Handle brand change
@@ -713,12 +749,21 @@ function resetCarForm() {
   document.getElementById('formTitle').textContent = 'Add New Listing';
   document.getElementById('formSubmitText').textContent = 'Add Listing';
 
-  document.querySelectorAll('.listing-type-option').forEach(function(opt) {
-    opt.classList.remove('selected--sale', 'selected--rent');
+  document.querySelectorAll('#listingTypeGroup .listing-type-option').forEach(function(opt) {
+    opt.classList.remove('selected--sale', 'selected--rent', 'selected--sold');
     var radio = opt.querySelector('input');
     if (radio.value === 'sale') {
       radio.checked = true;
       opt.classList.add('selected--sale');
+    }
+  });
+
+  document.querySelectorAll('#visibilityGroup .listing-type-option').forEach(function(opt) {
+    opt.classList.remove('selected--active', 'selected--hidden');
+    var radio = opt.querySelector('input');
+    if (radio.value === 'active') {
+      radio.checked = true;
+      opt.classList.add('selected--active');
     }
   });
 
@@ -1114,10 +1159,22 @@ function rejectAcquisition(id) {
 
 function initFormControllers() {
   // Option controls for Listing Type
-  document.querySelectorAll('.listing-type-option').forEach(function(opt) {
+  document.querySelectorAll('#listingTypeGroup .listing-type-option').forEach(function(opt) {
     opt.addEventListener('click', function() {
-      document.querySelectorAll('.listing-type-option').forEach(function(el) {
-        el.classList.remove('selected--sale', 'selected--rent');
+      document.querySelectorAll('#listingTypeGroup .listing-type-option').forEach(function(el) {
+        el.classList.remove('selected--sale', 'selected--rent', 'selected--sold');
+      });
+      var type = this.getAttribute('data-type');
+      this.classList.add('selected--' + type);
+      this.querySelector('input').checked = true;
+    });
+  });
+
+  // Option controls for Visibility Status
+  document.querySelectorAll('#visibilityGroup .listing-type-option').forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      document.querySelectorAll('#visibilityGroup .listing-type-option').forEach(function(el) {
+        el.classList.remove('selected--active', 'selected--hidden');
       });
       var type = this.getAttribute('data-type');
       this.classList.add('selected--' + type);
@@ -1198,6 +1255,41 @@ function initEventListeners() {
   document.getElementById('addCarFromInventoryBtn').addEventListener('click', function() {
     switchView('add-car');
   });
+
+  // Generate Test Acquisition Offer button
+  var testBtn = document.getElementById('createTestAcqBtn');
+  if (testBtn) {
+    testBtn.addEventListener('click', function() {
+      if (!adminData.acquisitions) adminData.acquisitions = [];
+      
+      // Check if the test offer is already in the list to avoid duplicate test actions
+      var exists = adminData.acquisitions.some(function(x) { return x.id === 98765; });
+      if (exists) {
+        showToast('Test offer already exists in list', 'warning');
+        return;
+      }
+
+      adminData.acquisitions.push({
+        id: 98765,
+        brandSlug: "mitsubishi",
+        brandName: "Mitsubishi",
+        name: "Mirage G4 1.2 GLX CVT",
+        year: 2021,
+        price: 450000,
+        odometer: "25,000 km",
+        transmission: "Automatic",
+        fuel: "Gasoline",
+        body: "Sedan",
+        contactLink: "seller@gmail.com",
+        condition: "Pristine condition, first owner, complete papers.",
+        time: new Date().toISOString()
+      });
+      saveData();
+      renderAcquisitions();
+      updateNotificationBadge();
+      showToast('Generated test acquisition offer', 'success');
+    });
+  }
 
   // Form submission and validation actions
   document.getElementById('carForm').addEventListener('submit', handleCarFormSubmit);

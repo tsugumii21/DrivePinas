@@ -1044,6 +1044,20 @@ ul, ol {
   color: var(--color-light);
 }
 
+.car-card__badge--sale {
+  top: var(--sp-3);
+  right: var(--sp-3);
+  background: var(--color-success);
+  color: var(--color-light);
+}
+
+.car-card__badge--rent {
+  top: var(--sp-3);
+  right: var(--sp-3);
+  background: #4285F4;
+  color: var(--color-light);
+}
+
 .car-card__badge--featured {
   top: var(--sp-3);
   left: var(--sp-3);
@@ -1730,6 +1744,65 @@ ul, ol {
   margin-bottom: var(--sp-8);
   position: relative;
   line-height: 1.6;
+}
+
+/* Form Toggle Tabs */
+.form-toggle-bar {
+  display: flex;
+  background: var(--color-dark-alt);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--sp-6);
+  border: 1px solid var(--color-border-dark);
+  position: relative;
+  z-index: 5;
+}
+
+.form-toggle-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text-on-dark-muted);
+  font-family: var(--font-family);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  padding: var(--sp-2) 0;
+  cursor: pointer;
+  border-radius: calc(var(--radius-lg) - 2px);
+  transition: all 0.2s ease;
+}
+
+.form-toggle-btn:hover {
+  color: var(--color-text-on-dark);
+}
+
+.form-toggle-btn.active {
+  background: var(--color-accent);
+  color: var(--color-light);
+}
+
+.contact-form__select {
+  width: 100%;
+  background: var(--color-dark-alt);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4) var(--sp-5);
+  color: var(--color-text-on-dark);
+  font-family: var(--font-family);
+  font-size: var(--fs-sm);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A0A0A0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--sp-4) center;
+  background-size: var(--sp-4);
+}
+
+.contact-form__select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
 .contact-form {

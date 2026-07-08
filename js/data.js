@@ -26,6 +26,8 @@ const SITE_CONFIG = {
   phoneTel: "+639XXXXXXXXX",
   facebook: "https://facebook.com/drivepinas",
   facebookDisplay: "facebook.com/drivepinas",
+  instagram: "https://instagram.com/drivepinas",
+  instagramDisplay: "instagram.com/drivepinas",
   location: "Metro Manila, Philippines",
   year: new Date().getFullYear(),
 };
