@@ -45,9 +45,10 @@
               id="linkNavHome">Home</button></li>
           <li><button class="nav__link" data-nav="brands" onclick="scrollToBrands()" type="button"
               id="linkNavBrands">Brands</button></li>
+          <li><button class="nav__link" data-nav="sell" onclick="navigateTo('sell')" type="button"
+              id="linkNavSell">Sell / Trade-in</button></li>
           <li><button class="nav__link" data-nav="contact" onclick="navigateTo('contact')" type="button"
-              id="linkNavContact">Contact</button>
-          </li>
+              id="linkNavContact">Contact</button></li>
         </ul>
         <button class="nav__hamburger" id="hamburger" type="button" aria-label="Toggle navigation menu"
           aria-expanded="false">
@@ -64,6 +65,8 @@
         id="mobileLinkHome">Home</button>
       <button class="nav__link" data-nav="brands" onclick="scrollToBrands(); closeMobileNav()" type="button"
         id="mobileLinkBrands">Brands</button>
+      <button class="nav__link" data-nav="sell" onclick="navigateTo('sell'); closeMobileNav()" type="button"
+        id="mobileLinkSell">Sell / Trade-in</button>
       <button class="nav__link" data-nav="contact" onclick="navigateTo('contact'); closeMobileNav()" type="button"
         id="mobileLinkContact">Contact</button>
     </div>
@@ -170,6 +173,30 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- ============================================================
+         SELL/TRADE-IN VIEW
+         ============================================================ -->
+    <div class="view" id="view-sell">
+      <div class="page-header">
+        <div class="container">
+          <div class="page-header__breadcrumb">
+            <a href="#home">Home</a>
+            <span class="page-header__breadcrumb-sep">›</span>
+            <span class="page-header__breadcrumb-current">Sell / Trade-in</span>
+          </div>
+          <h2 class="page-header__title">Sell or Trade-In Your Car</h2>
+          <p class="page-header__subtitle">
+            Provide your vehicle specifications below and get a value offer from our team.
+          </p>
+        </div>
+      </div>
+      <div class="section">
+        <div class="container container--narrow">
+          <div id="sellLayout"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ============================================================

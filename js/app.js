@@ -734,15 +734,9 @@ function renderContactPage() {
   // === LEFT COLUMN: Contact Form Card ===
   var formHtml =
     '<div class="contact-form-card">' +
-      '<div class="form-toggle-bar">' +
-        '<button type="button" class="form-toggle-btn active" id="btnToggleInquiry">Send Inquiry</button>' +
-        '<button type="button" class="form-toggle-btn" id="btnToggleTradeIn">Sell / Trade-in</button>' +
-      '</div>' +
-      '<h2 class="contact-form-card__title" id="contactFormTitle">Send Us a Message</h2>' +
-      '<p class="contact-form-card__subtitle" id="contactFormSubtitle">Fill out the form below and we\'ll get back to you as soon as possible.</p>' +
+      '<h2 class="contact-form-card__title">Send Us a Message</h2>' +
+      '<p class="contact-form-card__subtitle">Fill out the form below and we\'ll get back to you as soon as possible.</p>' +
       '<form class="contact-form" id="contactForm" novalidate>' +
-        '<input type="hidden" id="contactFormType" value="inquiry">' +
-        
         '<div class="contact-form__row">' +
           '<div class="contact-form__field">' +
             '<label class="contact-form__label" for="contactName">Full Name</label>' +
@@ -757,89 +751,12 @@ function renderContactPage() {
           '<label class="contact-form__label" for="contactPhone">Phone Number</label>' +
           '<input class="contact-form__input" type="tel" id="contactPhone" name="phone" placeholder="+63 9XX XXX XXXX">' +
         '</div>' +
-
-        // --- INQUIRY MODE FIELDS (visible by default) ---
-        '<div id="inquiryFieldsGroup">' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="contactMessage">Message</label>' +
-            '<textarea class="contact-form__textarea" id="contactMessage" name="message" placeholder="I\'m interested in a vehicle..." required></textarea>' +
-          '</div>' +
+        '<div class="contact-form__field">' +
+          '<label class="contact-form__label" for="contactMessage">Message</label>' +
+          '<textarea class="contact-form__textarea" id="contactMessage" name="message" placeholder="I\'m interested in a vehicle..." required></textarea>' +
         '</div>' +
-
-        // --- TRADE-IN MODE FIELDS (hidden by default) ---
-        '<div id="tradeInFieldsGroup" style="display:none;">' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeBrand">Brand</label>' +
-              '<select class="contact-form__select" id="tradeBrand">' +
-                '<option value="toyota">Toyota</option>' +
-                '<option value="honda">Honda</option>' +
-                '<option value="mitsubishi">Mitsubishi</option>' +
-                '<option value="nissan">Nissan</option>' +
-                '<option value="ford">Ford</option>' +
-                '<option value="mazda">Mazda</option>' +
-                '<option value="suzuki">Suzuki</option>' +
-                '<option value="hyundai">Hyundai</option>' +
-              '</select>' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeModel">Model / Name</label>' +
-              '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Mirage G4 1.2 GLX">' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeYear">Year Model</label>' +
-              '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030">' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradePrice">Asking Price (₱)</label>' +
-              '<input class="contact-form__input" type="number" id="tradePrice" placeholder="500000">' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeOdometer">Odometer</label>' +
-              '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 25,000 km">' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeTransmission">Transmission</label>' +
-              '<select class="contact-form__select" id="tradeTransmission">' +
-                '<option value="Automatic">Automatic</option>' +
-                '<option value="Manual">Manual</option>' +
-              '</select>' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeFuel">Fuel Type</label>' +
-              '<select class="contact-form__select" id="tradeFuel">' +
-                '<option value="Gasoline">Gasoline</option>' +
-                '<option value="Diesel">Diesel</option>' +
-                '<option value="Hybrid">Hybrid</option>' +
-                '<option value="Electric">Electric</option>' +
-              '</select>' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeBody">Body Type</label>' +
-              '<select class="contact-form__select" id="tradeBody">' +
-                '<option value="Sedan">Sedan</option>' +
-                '<option value="SUV">SUV</option>' +
-                '<option value="Pickup">Pickup</option>' +
-                '<option value="MPV">MPV</option>' +
-                '<option value="Hatchback">Hatchback</option>' +
-                '<option value="Van">Van</option>' +
-              '</select>' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeCondition">Condition Notes</label>' +
-            '<textarea class="contact-form__textarea" id="tradeCondition" placeholder="Describe the vehicle condition..."></textarea>' +
-          '</div>' +
-        '</div>' +
-
         '<button type="submit" class="contact-form__submit" id="btnContactSubmit">' +
-          '<span id="submitBtnText">Send Message</span>' +
+          '<span>Send Message</span>' +
           '<span class="contact-form__submit-icon">&rarr;</span>' +
         '</button>' +
       '</form>' +
@@ -918,44 +835,117 @@ function renderContactPage() {
 
   layout.innerHTML = formHtml + infoHtml;
 
-  // Bind toggling click events
-  var toggleInquiry = document.getElementById("btnToggleInquiry");
-  var toggleTradeIn = document.getElementById("btnToggleTradeIn");
-  var formTypeInput = document.getElementById("contactFormType");
-  var inquiryGroup = document.getElementById("inquiryFieldsGroup");
-  var tradeInGroup = document.getElementById("tradeInFieldsGroup");
-  var submitText = document.getElementById("submitBtnText");
-  var formTitle = document.getElementById("contactFormTitle");
-  var formSubtitle = document.getElementById("contactFormSubtitle");
-
-  if (toggleInquiry && toggleTradeIn && formTypeInput && inquiryGroup && tradeInGroup) {
-    toggleInquiry.addEventListener("click", function() {
-      toggleInquiry.classList.add("active");
-      toggleTradeIn.classList.remove("active");
-      formTypeInput.value = "inquiry";
-      inquiryGroup.style.display = "block";
-      tradeInGroup.style.display = "none";
-      submitText.textContent = "Send Message";
-      formTitle.textContent = "Send Us a Message";
-      formSubtitle.textContent = "Fill out the form below and we'll get back to you as soon as possible.";
-    });
-
-    toggleTradeIn.addEventListener("click", function() {
-      toggleTradeIn.classList.add("active");
-      toggleInquiry.classList.remove("active");
-      formTypeInput.value = "tradein";
-      inquiryGroup.style.display = "none";
-      tradeInGroup.style.display = "block";
-      submitText.textContent = "Submit Offer";
-      formTitle.textContent = "Sell / Trade-in Your Car";
-      formSubtitle.textContent = "Provide your vehicle's specifications below to receive a trade-in offer.";
-    });
-  }
-
   // Attach form submit handler
   var form = document.getElementById("contactForm");
   if (form) {
     form.addEventListener("submit", handleContactFormSubmit);
+  }
+}
+
+function renderSellPage() {
+  var layout = document.getElementById("sellLayout");
+  if (!layout) return;
+
+  layout.innerHTML =
+    '<div class="contact-form-card" style="max-width: 600px; margin: 0 auto; z-index: 5; position: relative;">' +
+      '<form class="contact-form" id="sellForm" novalidate>' +
+        '<h3 class="contact-form-card__title" style="margin-bottom:var(--sp-4); text-align:center;">Vehicle Specifications</h3>' +
+        
+        '<div class="contact-form__row">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeBrand">Brand</label>' +
+            '<select class="contact-form__select" id="tradeBrand">' +
+              '<option value="toyota">Toyota</option>' +
+              '<option value="honda">Honda</option>' +
+              '<option value="mitsubishi">Mitsubishi</option>' +
+              '<option value="nissan">Nissan</option>' +
+              '<option value="ford">Ford</option>' +
+              '<option value="mazda">Mazda</option>' +
+              '<option value="suzuki">Suzuki</option>' +
+              '<option value="hyundai">Hyundai</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeModel">Model / Name</label>' +
+            '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Mirage G4 1.2 GLX" required>' +
+          '</div>' +
+        '</div>' +
+        '<div class="contact-form__row">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeYear">Year Model</label>' +
+            '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradePrice">Asking Price (₱)</label>' +
+            '<input class="contact-form__input" type="number" id="tradePrice" placeholder="500000" required>' +
+          '</div>' +
+        '</div>' +
+        '<div class="contact-form__row">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeOdometer">Odometer</label>' +
+            '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 25,000 km">' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeTransmission">Transmission</label>' +
+            '<select class="contact-form__select" id="tradeTransmission">' +
+              '<option value="Automatic">Automatic</option>' +
+              '<option value="Manual">Manual</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="contact-form__row">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeFuel">Fuel Type</label>' +
+            '<select class="contact-form__select" id="tradeFuel">' +
+              '<option value="Gasoline">Gasoline</option>' +
+              '<option value="Diesel">Diesel</option>' +
+              '<option value="Hybrid">Hybrid</option>' +
+              '<option value="Electric">Electric</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeBody">Body Type</label>' +
+            '<select class="contact-form__select" id="tradeBody">' +
+              '<option value="Sedan">Sedan</option>' +
+              '<option value="SUV">SUV</option>' +
+              '<option value="Pickup">Pickup</option>' +
+              '<option value="MPV">MPV</option>' +
+              '<option value="Hatchback">Hatchback</option>' +
+              '<option value="Van">Van</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="contact-form__field">' +
+          '<label class="contact-form__label" for="tradeCondition">Condition Notes</label>' +
+          '<textarea class="contact-form__textarea" id="tradeCondition" placeholder="Describe the vehicle condition..."></textarea>' +
+        '</div>' +
+
+        '<h3 class="contact-form-card__title" style="margin-top:var(--sp-6); margin-bottom:var(--sp-4); text-align:center;">Seller Information</h3>' +
+        '<div class="contact-form__row">' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="contactName">Full Name</label>' +
+            '<input class="contact-form__input" type="text" id="contactName" placeholder="Juan Dela Cruz" required>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="contactEmail">Email Address</label>' +
+            '<input class="contact-form__input" type="email" id="contactEmail" placeholder="juan@email.com" required>' +
+          '</div>' +
+        '</div>' +
+        '<div class="contact-form__field">' +
+          '<label class="contact-form__label" for="contactPhone">Phone Number</label>' +
+          '<input class="contact-form__input" type="tel" id="contactPhone" placeholder="+63 9XX XXX XXXX">' +
+        '</div>' +
+
+        '<button type="submit" class="contact-form__submit" id="btnSellSubmit">' +
+          '<span>Submit Offer</span>' +
+          '<span class="contact-form__submit-icon">&rarr;</span>' +
+        '</button>' +
+      '</form>' +
+    '</div>';
+
+  var form = document.getElementById("sellForm");
+  if (form) {
+    form.addEventListener("submit", handleSellFormSubmit);
   }
 }
 
@@ -968,7 +958,6 @@ function handleContactFormSubmit(e) {
   var phone = document.getElementById("contactPhone");
   var message = document.getElementById("contactMessage");
   var submitBtn = document.getElementById("btnContactSubmit");
-  var formType = document.getElementById("contactFormType").value;
 
   var hasError = false;
 
@@ -995,34 +984,11 @@ function handleContactFormSubmit(e) {
     hasError = true;
   }
 
-  if (formType === "inquiry") {
-    // Validate Message
-    if (!message.value.trim()) {
-      message.style.borderColor = "var(--color-accent)";
-      clearBorder(message);
-      hasError = true;
-    }
-  } else {
-    // Validate Trade-in fields
-    var tradeModel = document.getElementById("tradeModel");
-    var tradeYear = document.getElementById("tradeYear");
-    var tradePrice = document.getElementById("tradePrice");
-
-    if (!tradeModel.value.trim()) {
-      tradeModel.style.borderColor = "var(--color-accent)";
-      clearBorder(tradeModel);
-      hasError = true;
-    }
-    if (!tradeYear.value.trim() || parseInt(tradeYear.value) < 1990 || parseInt(tradeYear.value) > 2030) {
-      tradeYear.style.borderColor = "var(--color-accent)";
-      clearBorder(tradeYear);
-      hasError = true;
-    }
-    if (!tradePrice.value.trim() || parseInt(tradePrice.value) <= 0) {
-      tradePrice.style.borderColor = "var(--color-accent)";
-      clearBorder(tradePrice);
-      hasError = true;
-    }
+  // Validate Message
+  if (!message.value.trim()) {
+    message.style.borderColor = "var(--color-accent)";
+    clearBorder(message);
+    hasError = true;
   }
 
   if (hasError) return;
@@ -1031,7 +997,7 @@ function handleContactFormSubmit(e) {
   var nameVal = name.value.trim();
   var emailVal = email.value.trim();
   var phoneVal = phone ? phone.value.trim() : "";
-  var messageVal = message ? message.value.trim() : "";
+  var messageVal = message.value.trim();
 
   // Submit button visual feedback
   if (submitBtn) {
@@ -1042,7 +1008,6 @@ function handleContactFormSubmit(e) {
 
   // Simulate network dispatch with a slight delay
   setTimeout(function () {
-    // Save to local storage for admin inbox
     var stored = localStorage.getItem("dp_admin_data");
     var adminDb = { brands: [], messages: [], notifications: [], acquisitions: [], nextCarId: 100, nextNotificationId: 10 };
     if (stored) {
@@ -1057,84 +1022,181 @@ function handleContactFormSubmit(e) {
     if (!adminDb.notifications) adminDb.notifications = [];
     if (!adminDb.nextNotificationId) adminDb.nextNotificationId = 10;
 
-    if (formType === "inquiry") {
-      var newMsg = {
-        id: Math.floor(Math.random() * 90000) + 10000,
-        name: nameVal,
-        email: emailVal,
-        phone: phoneVal,
-        message: messageVal,
-        time: new Date().toISOString(),
-        read: false
-      };
+    var newMsg = {
+      id: Math.floor(Math.random() * 90000) + 10000,
+      name: nameVal,
+      email: emailVal,
+      phone: phoneVal,
+      message: messageVal,
+      time: new Date().toISOString(),
+      read: false
+    };
 
-      adminDb.messages.unshift(newMsg);
+    adminDb.messages.unshift(newMsg);
 
-      adminDb.notifications.unshift({
-        id: adminDb.nextNotificationId++,
-        type: "message",
-        title: "New Inquiry from " + nameVal,
-        message: messageVal.substring(0, 100) + (messageVal.length > 100 ? "..." : ""),
-        time: new Date().toISOString(),
-        read: false
-      });
-    } else {
-      var brandSelect = document.getElementById("tradeBrand");
-      var brandName = brandSelect.options[brandSelect.selectedIndex].text;
-      var brandSlug = brandSelect.value;
-      
-      var tradeModelVal = document.getElementById("tradeModel").value.trim();
-      var tradeYearVal = parseInt(document.getElementById("tradeYear").value);
-      var tradePriceVal = parseInt(document.getElementById("tradePrice").value);
-      var tradeOdometerVal = document.getElementById("tradeOdometer").value.trim() || "N/A";
-      var tradeTransmissionVal = document.getElementById("tradeTransmission").value;
-      var tradeFuelVal = document.getElementById("tradeFuel").value;
-      var tradeBodyVal = document.getElementById("tradeBody").value;
-      var tradeConditionVal = document.getElementById("tradeCondition").value.trim() || "Good condition.";
-
-      if (!adminDb.acquisitions) adminDb.acquisitions = [];
-
-      var newAcq = {
-        id: Math.floor(Math.random() * 90000) + 10000,
-        brandSlug: brandSlug,
-        brandName: brandName,
-        name: tradeModelVal,
-        year: tradeYearVal,
-        price: tradePriceVal,
-        odometer: tradeOdometerVal,
-        transmission: tradeTransmissionVal,
-        fuel: tradeFuelVal,
-        body: tradeBodyVal,
-        contactLink: emailVal,
-        condition: tradeConditionVal,
-        time: new Date().toISOString()
-      };
-
-      adminDb.acquisitions.unshift(newAcq);
-
-      adminDb.notifications.unshift({
-        id: adminDb.nextNotificationId++,
-        type: "acquisition",
-        title: "New Trade-in Offer: " + brandName + " " + tradeModelVal,
-        message: "Asking Price: ₱" + tradePriceVal.toLocaleString() + " | Year: " + tradeYearVal,
-        time: new Date().toISOString(),
-        read: false
-      });
-    }
+    adminDb.notifications.unshift({
+      id: adminDb.nextNotificationId++,
+      type: "message",
+      title: "New Inquiry from " + nameVal,
+      message: messageVal.substring(0, 100) + (messageVal.length > 100 ? "..." : ""),
+      time: new Date().toISOString(),
+      read: false
+    });
 
     localStorage.setItem("dp_admin_data", JSON.stringify(adminDb));
 
     // Reset field borders
     name.style.borderColor = "";
     email.style.borderColor = "";
-    if (message) message.style.borderColor = "";
-    
-    var tradeModelEl = document.getElementById("tradeModel");
-    var tradeYearEl = document.getElementById("tradeYear");
-    var tradePriceEl = document.getElementById("tradePrice");
-    if (tradeModelEl) tradeModelEl.style.borderColor = "";
-    if (tradeYearEl) tradeYearEl.style.borderColor = "";
-    if (tradePriceEl) tradePriceEl.style.borderColor = "";
+    message.style.borderColor = "";
+
+    // Clear form
+    e.target.reset();
+
+    // Show success toast
+    showContactToast();
+
+    // Restore submit button
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
+  }, 800);
+}
+
+function handleSellFormSubmit(e) {
+  e.preventDefault();
+
+  var name = e.target.querySelector("#contactName");
+  var email = e.target.querySelector("#contactEmail");
+  var phone = e.target.querySelector("#contactPhone");
+  var tradeModel = document.getElementById("tradeModel");
+  var tradeYear = document.getElementById("tradeYear");
+  var tradePrice = document.getElementById("tradePrice");
+  var submitBtn = document.getElementById("btnSellSubmit");
+
+  var hasError = false;
+
+  // Clear borders dynamically on edit (Emil style)
+  var clearBorder = function (el) {
+    el.addEventListener("input", function handler() {
+      el.style.borderColor = "";
+      el.removeEventListener("input", handler);
+    });
+  };
+
+  // Validate Name
+  if (!name.value.trim()) {
+    name.style.borderColor = "var(--color-accent)";
+    clearBorder(name);
+    hasError = true;
+  }
+
+  // Validate Email
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.value.trim() || !emailRegex.test(email.value.trim())) {
+    email.style.borderColor = "var(--color-accent)";
+    clearBorder(email);
+    hasError = true;
+  }
+
+  // Validate Model
+  if (!tradeModel.value.trim()) {
+    tradeModel.style.borderColor = "var(--color-accent)";
+    clearBorder(tradeModel);
+    hasError = true;
+  }
+
+  // Validate Year
+  if (!tradeYear.value.trim() || parseInt(tradeYear.value) < 1990 || parseInt(tradeYear.value) > 2030) {
+    tradeYear.style.borderColor = "var(--color-accent)";
+    clearBorder(tradeYear);
+    hasError = true;
+  }
+
+  // Validate Price
+  if (!tradePrice.value.trim() || parseInt(tradePrice.value) <= 0) {
+    tradePrice.style.borderColor = "var(--color-accent)";
+    clearBorder(tradePrice);
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  var nameVal = name.value.trim();
+  var emailVal = email.value.trim();
+  var phoneVal = phone ? phone.value.trim() : "";
+  
+  var brandSelect = document.getElementById("tradeBrand");
+  var brandName = brandSelect.options[brandSelect.selectedIndex].text;
+  var brandSlug = brandSelect.value;
+  var tradeModelVal = tradeModel.value.trim();
+  var tradeYearVal = parseInt(tradeYear.value);
+  var tradePriceVal = parseInt(tradePrice.value);
+  var tradeOdometerVal = document.getElementById("tradeOdometer").value.trim() || "N/A";
+  var tradeTransmissionVal = document.getElementById("tradeTransmission").value;
+  var tradeFuelVal = document.getElementById("tradeFuel").value;
+  var tradeBodyVal = document.getElementById("tradeBody").value;
+  var tradeConditionVal = document.getElementById("tradeCondition").value.trim() || "Good condition.";
+
+  // Submit button visual feedback
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    var originalBtnHtml = submitBtn.innerHTML;
+    submitBtn.innerHTML = "<span>Submitting...</span>";
+  }
+
+  // Simulate network dispatch with a slight delay
+  setTimeout(function () {
+    var stored = localStorage.getItem("dp_admin_data");
+    var adminDb = { brands: [], messages: [], notifications: [], acquisitions: [], nextCarId: 100, nextNotificationId: 10 };
+    if (stored) {
+      try {
+        adminDb = JSON.parse(stored);
+      } catch (err) {
+        // use default
+      }
+    }
+
+    if (!adminDb.acquisitions) adminDb.acquisitions = [];
+    if (!adminDb.notifications) adminDb.notifications = [];
+    if (!adminDb.nextNotificationId) adminDb.nextNotificationId = 10;
+
+    var newAcq = {
+      id: Math.floor(Math.random() * 90000) + 10000,
+      brandSlug: brandSlug,
+      brandName: brandName,
+      name: tradeModelVal,
+      year: tradeYearVal,
+      price: tradePriceVal,
+      odometer: tradeOdometerVal,
+      transmission: tradeTransmissionVal,
+      fuel: tradeFuelVal,
+      body: tradeBodyVal,
+      contactLink: emailVal,
+      condition: tradeConditionVal,
+      time: new Date().toISOString()
+    };
+
+    adminDb.acquisitions.unshift(newAcq);
+
+    adminDb.notifications.unshift({
+      id: adminDb.nextNotificationId++,
+      type: "acquisition",
+      title: "New Trade-in Offer: " + brandName + " " + tradeModelVal,
+      message: "Asking Price: ₱" + tradePriceVal.toLocaleString() + " | Year: " + tradeYearVal,
+      time: new Date().toISOString(),
+      read: false
+    });
+
+    localStorage.setItem("dp_admin_data", JSON.stringify(adminDb));
+
+    // Reset field borders
+    name.style.borderColor = "";
+    email.style.borderColor = "";
+    tradeModel.style.borderColor = "";
+    tradeYear.style.borderColor = "";
+    tradePrice.style.borderColor = "";
 
     // Clear form
     e.target.reset();
