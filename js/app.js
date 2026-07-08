@@ -854,102 +854,179 @@ function renderSellPage() {
 
   layout.innerHTML =
     '<div class="contact-form-card" style="max-width: 600px; margin: 0 auto; z-index: 5; position: relative;">' +
+      '<!-- Progress Header -->' +
+      '<div class="wizard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-6);">' +
+        '<span class="wizard-step-label" style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted);">Step <span id="wizardStepNum">1</span> of 2</span>' +
+        '<div class="wizard-progress-bar" style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); margin-left: var(--sp-4); border-radius: 2px; overflow: hidden; position: relative;">' +
+          '<div class="wizard-progress-fill" id="wizardProgressFill" style="width: 50%; height: 100%; background: var(--color-accent); transition: width 0.3s ease;"></div>' +
+        '</div>' +
+      '</div>' +
+
       '<form class="contact-form" id="sellForm" novalidate>' +
-        '<h3 class="contact-form-card__title" style="margin-bottom:var(--sp-4); text-align:center;">Vehicle Specifications</h3>' +
-        
-        '<div class="contact-form__row">' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeBrand">Brand</label>' +
-            '<select class="contact-form__select" id="tradeBrand">' +
-              '<option value="toyota">Toyota</option>' +
-              '<option value="honda">Honda</option>' +
-              '<option value="mitsubishi">Mitsubishi</option>' +
-              '<option value="nissan">Nissan</option>' +
-              '<option value="ford">Ford</option>' +
-              '<option value="mazda">Mazda</option>' +
-              '<option value="suzuki">Suzuki</option>' +
-              '<option value="hyundai">Hyundai</option>' +
-            '</select>' +
+        '<!-- STEP 1: Specs -->' +
+        '<div class="wizard-step" id="sellStep1">' +
+          '<h3 class="contact-form-card__title" style="margin-bottom: var(--sp-4); text-align: center;">Vehicle Details</h3>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeBrand">Brand</label>' +
+              '<select class="contact-form__select" id="tradeBrand">' +
+                '<option value="toyota">Toyota</option>' +
+                '<option value="honda">Honda</option>' +
+                '<option value="mitsubishi">Mitsubishi</option>' +
+                '<option value="nissan">Nissan</option>' +
+                '<option value="ford">Ford</option>' +
+                '<option value="mazda">Mazda</option>' +
+                '<option value="suzuki">Suzuki</option>' +
+                '<option value="hyundai">Hyundai</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeModel">Model / Name</label>' +
+              '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Mirage G4 1.2 GLX" required>' +
+            '</div>' +
           '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeModel">Model / Name</label>' +
-            '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Mirage G4 1.2 GLX" required>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeYear">Year Model</label>' +
+              '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required>' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradePrice">Asking Price (₱)</label>' +
+              '<input class="contact-form__input" type="number" id="tradePrice" placeholder="500000" required>' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-        '<div class="contact-form__row">' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeYear">Year Model</label>' +
-            '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeOdometer">Odometer</label>' +
+              '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 25,000 km">' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeTransmission">Transmission</label>' +
+              '<select class="contact-form__select" id="tradeTransmission">' +
+                '<option value="Automatic">Automatic</option>' +
+                '<option value="Manual">Manual</option>' +
+              '</select>' +
+            '</div>' +
           '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradePrice">Asking Price (₱)</label>' +
-            '<input class="contact-form__input" type="number" id="tradePrice" placeholder="500000" required>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeFuel">Fuel Type</label>' +
+              '<select class="contact-form__select" id="tradeFuel">' +
+                '<option value="Gasoline">Gasoline</option>' +
+                '<option value="Diesel">Diesel</option>' +
+                '<option value="Hybrid">Hybrid</option>' +
+                '<option value="Electric">Electric</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="tradeBody">Body Type</label>' +
+              '<select class="contact-form__select" id="tradeBody">' +
+                '<option value="Sedan">Sedan</option>' +
+                '<option value="SUV">SUV</option>' +
+                '<option value="Pickup">Pickup</option>' +
+                '<option value="MPV">MPV</option>' +
+                '<option value="Hatchback">Hatchback</option>' +
+                '<option value="Van">Van</option>' +
+              '</select>' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-        '<div class="contact-form__row">' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeOdometer">Odometer</label>' +
-            '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 25,000 km">' +
-          '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeTransmission">Transmission</label>' +
-            '<select class="contact-form__select" id="tradeTransmission">' +
-              '<option value="Automatic">Automatic</option>' +
-              '<option value="Manual">Manual</option>' +
-            '</select>' +
-          '</div>' +
-        '</div>' +
-        '<div class="contact-form__row">' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeFuel">Fuel Type</label>' +
-            '<select class="contact-form__select" id="tradeFuel">' +
-              '<option value="Gasoline">Gasoline</option>' +
-              '<option value="Diesel">Diesel</option>' +
-              '<option value="Hybrid">Hybrid</option>' +
-              '<option value="Electric">Electric</option>' +
-            '</select>' +
-          '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeBody">Body Type</label>' +
-            '<select class="contact-form__select" id="tradeBody">' +
-              '<option value="Sedan">Sedan</option>' +
-              '<option value="SUV">SUV</option>' +
-              '<option value="Pickup">Pickup</option>' +
-              '<option value="MPV">MPV</option>' +
-              '<option value="Hatchback">Hatchback</option>' +
-              '<option value="Van">Van</option>' +
-            '</select>' +
-          '</div>' +
-        '</div>' +
-        '<div class="contact-form__field">' +
-          '<label class="contact-form__label" for="tradeCondition">Condition Notes</label>' +
-          '<textarea class="contact-form__textarea" id="tradeCondition" placeholder="Describe the vehicle condition..."></textarea>' +
-        '</div>' +
-
-        '<h3 class="contact-form-card__title" style="margin-top:var(--sp-6); margin-bottom:var(--sp-4); text-align:center;">Seller Information</h3>' +
-        '<div class="contact-form__row">' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="sellName">Full Name</label>' +
-            '<input class="contact-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required>' +
-          '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="sellEmail">Email Address</label>' +
-            '<input class="contact-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required>' +
-          '</div>' +
-        '</div>' +
-        '<div class="contact-form__field">' +
-          '<label class="contact-form__label" for="sellPhone">Phone Number</label>' +
-          '<input class="contact-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX">' +
+          '<button type="button" class="contact-form__submit" id="btnSellNext" style="margin-top: var(--sp-4);">' +
+            '<span>Continue to Seller Info</span>' +
+            '<span class="contact-form__submit-icon">&rarr;</span>' +
+          '</button>' +
         '</div>' +
 
-        '<button type="submit" class="contact-form__submit" id="btnSellSubmit">' +
-          '<span>Submit Offer</span>' +
-          '<span class="contact-form__submit-icon">&rarr;</span>' +
-        '</button>' +
+        '<!-- STEP 2: Seller & Condition -->' +
+        '<div class="wizard-step" id="sellStep2" style="display: none;">' +
+          '<h3 class="contact-form-card__title" style="margin-bottom: var(--sp-4); text-align: center;">Seller Details</h3>' +
+          '<div class="contact-form__row">' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="sellName">Full Name</label>' +
+              '<input class="contact-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required>' +
+            '</div>' +
+            '<div class="contact-form__field">' +
+              '<label class="contact-form__label" for="sellEmail">Email Address</label>' +
+              '<input class="contact-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required>' +
+            '</div>' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="sellPhone">Phone Number</label>' +
+            '<input class="contact-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX">' +
+          '</div>' +
+          '<div class="contact-form__field">' +
+            '<label class="contact-form__label" for="tradeCondition">Condition Notes</label>' +
+            '<textarea class="contact-form__textarea" id="tradeCondition" placeholder="Describe the vehicle condition, history, or modification notes..."></textarea>' +
+          '</div>' +
+          '<div class="wizard-actions" style="display: flex; gap: var(--sp-4); margin-top: var(--sp-4);">' +
+            '<button type="button" class="btn btn--outline" id="btnSellBack" style="flex: 1; padding: 14px; font-weight: 700; font-size: 14px; border-radius: var(--radius-md);">' +
+              '&larr; Back' +
+            '</button>' +
+            '<button type="submit" class="contact-form__submit" id="btnSellSubmit" style="flex: 2; margin-top: 0;">' +
+              '<span>Submit Offer</span>' +
+              '<span class="contact-form__submit-icon">&rarr;</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
       '</form>' +
     '</div>';
 
   var form = document.getElementById("sellForm");
+  var step1 = document.getElementById("sellStep1");
+  var step2 = document.getElementById("sellStep2");
+  var nextBtn = document.getElementById("btnSellNext");
+  var backBtn = document.getElementById("btnSellBack");
+  var stepNum = document.getElementById("wizardStepNum");
+  var progressFill = document.getElementById("wizardProgressFill");
+
+  if (nextBtn && backBtn && step1 && step2 && stepNum && progressFill) {
+    var clearBorder = function (el) {
+      el.addEventListener("input", function handler() {
+        el.style.borderColor = "";
+        el.removeEventListener("input", handler);
+      });
+    };
+
+    nextBtn.addEventListener("click", function () {
+      var tradeModel = document.getElementById("tradeModel");
+      var tradeYear = document.getElementById("tradeYear");
+      var tradePrice = document.getElementById("tradePrice");
+      var hasError = false;
+
+      // Validate Step 1 fields
+      if (!tradeModel.value.trim()) {
+        tradeModel.style.borderColor = "var(--color-accent)";
+        clearBorder(tradeModel);
+        hasError = true;
+      }
+      if (!tradeYear.value.trim() || parseInt(tradeYear.value) < 1990 || parseInt(tradeYear.value) > 2030) {
+        tradeYear.style.borderColor = "var(--color-accent)";
+        clearBorder(tradeYear);
+        hasError = true;
+      }
+      if (!tradePrice.value.trim() || parseInt(tradePrice.value) <= 0) {
+        tradePrice.style.borderColor = "var(--color-accent)";
+        clearBorder(tradePrice);
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Go to Step 2
+      step1.style.display = "none";
+      step2.style.display = "block";
+      stepNum.textContent = "2";
+      progressFill.style.width = "100%";
+    });
+
+    backBtn.addEventListener("click", function () {
+      // Go back to Step 1
+      step2.style.display = "none";
+      step1.style.display = "block";
+      stepNum.textContent = "1";
+      progressFill.style.width = "50%";
+    });
+  }
+
   if (form) {
     form.addEventListener("submit", handleSellFormSubmit);
   }
