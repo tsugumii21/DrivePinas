@@ -183,6 +183,12 @@ function handleRoute() {
       }
       break;
 
+    case "sell":
+      renderSellPage();
+      showView("view-sell");
+      setActiveNav("sell");
+      break;
+
     case "contact":
       showView("view-contact");
       setActiveNav("contact");
