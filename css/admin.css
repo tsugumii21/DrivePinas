@@ -241,10 +241,10 @@ textarea {
 }
 
 .sidebar__brand {
-  padding: 24px 20px;
+  padding: 24px 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   border-bottom: 1px solid var(--border);
   overflow: hidden;
 }
@@ -283,6 +283,30 @@ textarea {
   margin-left: auto;
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+/* Login Card Logo Branding */
+.login-card__logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.login-card__logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.login-card__logo-drive {
+  color: #FFFFFF !important;
+}
+
+.login-card__logo-pinas {
+  color: #E31837 !important;
 }
 
 .sidebar__nav {
