@@ -1116,7 +1116,7 @@ function createRentCard(brand, unit, unitIndex, staggerIndex) {
         '<p class="rent-card__year">' + unit.year + " \u00b7 " + escapeHtml(unit.body) + "</p>" +
         '<div class="rent-card__specs">' +
           '<span class="spec-chip">\u2699 ' + escapeHtml(unit.transmission) + "</span>" +
-          '<span class="spec-chip">\u26fd " + escapeHtml(unit.fuel) + "</span>" +
+          '<span class="spec-chip">\u26fd ' + escapeHtml(unit.fuel) + "</span>" +
           '<span class="spec-chip">\ud83d\udccd ' + escapeHtml(unit.odometer) + "</span>" +
         "</div>" +
         '<div class="rent-card__rate">' + rateDisplay + "</div>" +
