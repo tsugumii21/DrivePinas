@@ -1003,64 +1003,118 @@ function resetDatabase() {
 
 function renderAcquisitions() {
   var list = document.getElementById('acquisitionsBody');
-  var acqs = adminData.acquisitions || [];
+  if (!list) return;
 
-  document.getElementById('acqCount').textContent = acqs.length + ' offer' + (acqs.length !== 1 ? 's' : '') + ' pending';
+  // Show loading state
+  list.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:var(--sp-8);"><i class="fa-solid fa-spinner fa-spin" style="font-size:24px;color:var(--accent);"></i><p style="margin-top:var(--sp-2);color:var(--text-secondary);">Loading submissions...</p></td></tr>';
 
-  var acqBadge = document.getElementById('acqBadge');
-  if (acqBadge) {
-    acqBadge.textContent = acqs.length;
-    acqBadge.classList.toggle('sidebar__link-badge--hidden', acqs.length === 0);
-  }
+  fetchSellSubmissions()
+    .then(function (submissions) {
+      // Map database submissions to the expected admin data structure
+      var mappedAcqs = submissions.map(function (sub) {
+        return {
+          id: sub.id,
+          brandSlug: sub.brand,
+          brandName: sub.brand ? sub.brand.charAt(0).toUpperCase() + sub.brand.slice(1) : "Other",
+          name: sub.model + (sub.variant ? " " + sub.variant : ""),
+          year: sub.year,
+          price: sub.asking_price,
+          odometer: sub.odometer || "N/A",
+          transmission: sub.transmission,
+          fuel: sub.fuel_type,
+          body: sub.body_type,
+          contactLink: sub.seller_email,
+          condition: sub.condition + (sub.registration_status ? " (" + sub.registration_status + ")" : "") + (sub.known_issues ? " | Issues: " + sub.known_issues : ""),
+          photoUrls: sub.photo_urls || [],
+          sellerName: sub.seller_name,
+          sellerPhone: sub.seller_phone || "N/A",
+          status: sub.status || "pending",
+          time: sub.created_at || sub.time || new Date().toISOString()
+        };
+      });
 
-  if (!acqs.length) {
-    list.innerHTML =
-      '<tr><td colspan="8"><div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>' +
-      '<div class="empty-state__title">No Pending Acquisitions</div>' +
-      '<div class="empty-state__desc">When users submit trade-in offers from the contact page, they will appear here.</div></div></td></tr>';
-    return;
-  }
+      // Filter only pending submissions for this view
+      var pendingAcqs = mappedAcqs.filter(function (x) { return x.status === "pending"; });
 
-  var html = '';
-  acqs.forEach(function(acq) {
-    html +=
-      '<tr>' +
-      '<td style="padding-left: 24px;">' +
-      '<div style="font-weight:700; color:var(--text-primary);">' + escapeHtml(acq.brandName + ' ' + acq.name) + '</div>' +
-      '<div class="car-row__brand">Submitted ' + timeAgo(acq.time) + '</div>' +
-      '</td>' +
-      '<td>' + acq.year + '</td>' +
-      '<td class="buy-details__price">' + formatPeso(acq.price) + '</td>' +
-      '<td>' + escapeHtml(acq.odometer) + '</td>' +
-      '<td>' + escapeHtml(acq.transmission) + ' · ' + escapeHtml(acq.fuel) + '</td>' +
-      '<td>' + escapeHtml(acq.contactLink) + '</td>' +
-      '<td class="car-row__brand" title="' + escapeHtml(acq.condition) + '">' + escapeHtml(acq.condition) + '</td>' +
-      '<td class="text-right--padded">' +
-      '<div class="car-row__actions" style="justify-content:flex-end;">' +
-      '<button class="btn btn--primary btn--sm" data-buy-acq="' + acq.id + '"><i class="fa-solid fa-cart-shopping"></i> Buy</button>' +
-      '<button class="btn btn--outline btn--sm btn--danger" data-reject-acq="' + acq.id + '"><i class="fa-solid fa-trash"></i> Reject</button>' +
-      '</div>' +
-      '</td>' +
-      '</tr>';
-  });
-  list.innerHTML = html;
+      // Update adminData so other actions can search this array
+      adminData.acquisitions = pendingAcqs;
 
-  // Bind dynamic acquisition button listeners
-  document.querySelectorAll('[data-buy-acq]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      openBuyModal(parseInt(this.getAttribute('data-buy-acq')));
+      document.getElementById('acqCount').textContent = pendingAcqs.length + ' offer' + (pendingAcqs.length !== 1 ? 's' : '') + ' pending';
+
+      var acqBadge = document.getElementById('acqBadge');
+      if (acqBadge) {
+        acqBadge.textContent = pendingAcqs.length;
+        acqBadge.classList.toggle('sidebar__link-badge--hidden', pendingAcqs.length === 0);
+      }
+
+      if (!pendingAcqs.length) {
+        list.innerHTML =
+          '<tr><td colspan="8"><div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>' +
+          '<div class="empty-state__title">No Pending Acquisitions</div>' +
+          '<div class="empty-state__desc">When users submit offers from the showroom page, they will appear here.</div></div></td></tr>';
+        return;
+      }
+
+      var html = '';
+      pendingAcqs.forEach(function (acq) {
+        // Render photo thumbnail strip if present
+        var galleryHtml = '';
+        if (acq.photoUrls && acq.photoUrls.length > 0) {
+          galleryHtml = '<div class="acq-row-gallery" style="display:flex;gap:4px;margin-top:6px;overflow-x:auto;">';
+          acq.photoUrls.forEach(function (url) {
+            galleryHtml += '<img src="' + url + '" style="width:40px;height:30px;object-fit:cover;border-radius:4px;border:1px solid var(--border);cursor:pointer;" onclick="window.open(\'' + url + '\', \'_blank\')">';
+          });
+          galleryHtml += '</div>';
+        }
+
+        html +=
+          '<tr>' +
+          '<td style="padding-left: 24px;">' +
+          '<div style="font-weight:700; color:var(--text-primary);">' + escapeHtml(acq.brandName + ' ' + acq.name) + '</div>' +
+          '<div class="car-row__brand">Submitted ' + timeAgo(acq.time) + '</div>' +
+          galleryHtml +
+          '</td>' +
+          '<td>' + acq.year + '</td>' +
+          '<td class="buy-details__price">' + formatPeso(acq.price) + '</td>' +
+          '<td>' + escapeHtml(acq.odometer) + '</td>' +
+          '<td>' + escapeHtml(acq.transmission) + ' · ' + escapeHtml(acq.fuel) + '</td>' +
+          '<td>' +
+          '<div style="font-weight:600;">' + escapeHtml(acq.sellerName) + '</div>' +
+          '<div class="car-row__brand">' + escapeHtml(acq.contactLink) + '</div>' +
+          '<div class="car-row__brand">' + escapeHtml(acq.sellerPhone) + '</div>' +
+          '</td>' +
+          '<td class="car-row__brand" title="' + escapeHtml(acq.condition) + '">' + escapeHtml(acq.condition) + '</td>' +
+          '<td class="text-right--padded">' +
+          '<div class="car-row__actions" style="justify-content:flex-end;">' +
+          '<button class="btn btn--primary btn--sm" data-buy-acq="' + acq.id + '"><i class="fa-solid fa-cart-shopping"></i> Buy</button>' +
+          '<button class="btn btn--outline btn--sm btn--danger" data-reject-acq="' + acq.id + '"><i class="fa-solid fa-trash"></i> Reject</button>' +
+          '</div>' +
+          '</td>' +
+          '</tr>';
+      });
+      list.innerHTML = html;
+
+      // Bind button click listeners
+      document.querySelectorAll('[data-buy-acq]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openBuyModal(this.getAttribute('data-buy-acq'));
+        });
+      });
+
+      document.querySelectorAll('[data-reject-acq]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          rejectAcquisition(this.getAttribute('data-reject-acq'));
+        });
+      });
+    })
+    .catch(function (error) {
+      console.error("Failed to load acquisitions:", error);
+      list.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:var(--sp-6);">Failed to load acquisitions.</td></tr>';
     });
-  });
-  
-  document.querySelectorAll('[data-reject-acq]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      rejectAcquisition(parseInt(this.getAttribute('data-reject-acq')));
-    });
-  });
 }
 
 function openBuyModal(id) {
-  var acq = adminData.acquisitions.find(function(x) { return x.id === id; });
+  var acq = adminData.acquisitions.find(function (x) { return x.id.toString() === id.toString(); });
   if (!acq) return;
 
   document.getElementById('buyAcqId').value = acq.id;
@@ -1081,14 +1135,14 @@ function closeBuyModal() {
 
 function confirmBuyVehicle(e) {
   e.preventDefault();
-  var acqId = parseInt(document.getElementById('buyAcqId').value);
+  var acqId = document.getElementById('buyAcqId').value;
   var retailPrice = parseInt(document.getElementById('buyRetailPrice').value);
 
-  var acqIndex = adminData.acquisitions.findIndex(function(x) { return x.id === acqId; });
+  var acqIndex = adminData.acquisitions.findIndex(function (x) { return x.id.toString() === acqId.toString(); });
   if (acqIndex === -1) return;
   var acq = adminData.acquisitions[acqIndex];
 
-  var brand = adminData.brands.find(function(b) { return b.slug === acq.brandSlug; });
+  var brand = adminData.brands.find(function (b) { return b.slug === acq.brandSlug; });
   if (!brand) {
     brand = {
       name: acq.brandName,
@@ -1099,7 +1153,18 @@ function confirmBuyVehicle(e) {
     adminData.brands.push(brand);
   }
 
-  var baseImageSeed = 100 + Math.floor(Math.random() * 800);
+  // Handle unit images
+  var imagesArray = [];
+  var imagePathsArray = [];
+  if (acq.photoUrls && acq.photoUrls.length > 0) {
+    acq.photoUrls.forEach(function (url) {
+      imagePathsArray.push(url);
+    });
+  } else {
+    var baseImageSeed = 100 + Math.floor(Math.random() * 800);
+    imagesArray = [baseImageSeed, baseImageSeed + 1, baseImageSeed + 2, baseImageSeed + 3];
+  }
+
   var newUnit = {
     id: adminData.nextCarId++,
     name: acq.name,
@@ -1114,8 +1179,8 @@ function confirmBuyVehicle(e) {
     featured: false,
     listingType: "sale",
     channels: ["facebook", "gmail"],
-    images: [baseImageSeed, baseImageSeed + 1, baseImageSeed + 2, baseImageSeed + 3],
-    imagePaths: []
+    images: imagesArray,
+    imagePaths: imagePathsArray
   };
 
   brand.units.push(newUnit);
@@ -1129,28 +1194,42 @@ function confirmBuyVehicle(e) {
     read: false
   });
 
-  adminData.acquisitions.splice(acqIndex, 1);
-  saveData();
-  closeBuyModal();
+  updateSubmissionStatus(acq.id, 'accepted')
+    .then(function () {
+      adminData.acquisitions.splice(acqIndex, 1);
+      saveData();
+      closeBuyModal();
 
-  updateNotificationBadge();
-  showToast('Acquired and listed ' + acq.brandName + ' ' + acq.name, 'success');
-  playChime();
+      updateNotificationBadge();
+      showToast('Acquired and listed ' + acq.brandName + ' ' + acq.name, 'success');
+      playChime();
 
-  switchView('inventory');
+      switchView('inventory');
+    })
+    .catch(function (err) {
+      console.error("Failed to update status on acquire:", err);
+      showToast('Error saving acquisition status', 'danger');
+    });
 }
 
 function rejectAcquisition(id) {
   if (!confirm('Are you sure you want to reject this trade-in offer?')) return;
-  var acqIndex = adminData.acquisitions.findIndex(function(x) { return x.id === id; });
+  var acqIndex = adminData.acquisitions.findIndex(function (x) { return x.id.toString() === id.toString(); });
   if (acqIndex === -1) return;
 
   var acq = adminData.acquisitions[acqIndex];
-  adminData.acquisitions.splice(acqIndex, 1);
-  saveData();
-
-  renderAcquisitions();
-  showToast('Rejected offer for ' + acq.brandName + ' ' + acq.name, 'danger');
+  
+  updateSubmissionStatus(acq.id, 'rejected')
+    .then(function () {
+      adminData.acquisitions.splice(acqIndex, 1);
+      saveData();
+      renderAcquisitions();
+      showToast('Rejected offer for ' + acq.brandName + ' ' + acq.name, 'danger');
+    })
+    .catch(function (err) {
+      console.error("Failed to reject acquisition:", err);
+      showToast('Error updating status', 'danger');
+    });
 }
 
 /* ================================================================
@@ -1328,6 +1407,20 @@ function initApp() {
 
   updateNotificationBadge();
   renderDashboard();
+
+  // Fetch acquisitions in background to populate sidebar badge
+  fetchSellSubmissions()
+    .then(function (submissions) {
+      var pendingCount = submissions.filter(function (s) { return (s.status || 'pending') === 'pending'; }).length;
+      var acqBadge = document.getElementById('acqBadge');
+      if (acqBadge) {
+        acqBadge.textContent = pendingCount;
+        acqBadge.classList.toggle('sidebar__link-badge--hidden', pendingCount === 0);
+      }
+    })
+    .catch(function (err) {
+      console.error("Failed to load acquisitions count in background:", err);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -43,10 +43,8 @@
         <ul class="nav__links" id="navLinks">
           <li><button class="nav__link" data-nav="home" onclick="navigateTo('home')" type="button"
               id="linkNavHome">Home</button></li>
-          <li><button class="nav__link" data-nav="brands" onclick="scrollToBrands()" type="button"
-              id="linkNavBrands">Brands</button></li>
-          <li><button class="nav__link" data-nav="sell" onclick="navigateTo('sell')" type="button"
-              id="linkNavSell">Sell / Trade-in</button></li>
+          <li><button class="nav__link" data-nav="showroom" onclick="navigateTo('showroom')" type="button"
+              id="linkNavShowroom">Showroom</button></li>
           <li><button class="nav__link" data-nav="contact" onclick="navigateTo('contact')" type="button"
               id="linkNavContact">Contact</button></li>
         </ul>
@@ -63,10 +61,8 @@
     <div class="nav__mobile" id="mobileNav">
       <button class="nav__link" data-nav="home" onclick="navigateTo('home'); closeMobileNav()" type="button"
         id="mobileLinkHome">Home</button>
-      <button class="nav__link" data-nav="brands" onclick="scrollToBrands(); closeMobileNav()" type="button"
-        id="mobileLinkBrands">Brands</button>
-      <button class="nav__link" data-nav="sell" onclick="navigateTo('sell'); closeMobileNav()" type="button"
-        id="mobileLinkSell">Sell / Trade-in</button>
+      <button class="nav__link" data-nav="showroom" onclick="navigateTo('showroom'); closeMobileNav()" type="button"
+        id="mobileLinkShowroom">Showroom</button>
       <button class="nav__link" data-nav="contact" onclick="navigateTo('contact'); closeMobileNav()" type="button"
         id="mobileLinkContact">Contact</button>
     </div>
@@ -96,7 +92,7 @@
               detail transparent.
             </p>
             <div class="hero__actions">
-              <button class="btn btn--primary btn--lg btn--pulse" onclick="scrollToBrands()" type="button"
+              <button class="btn btn--primary btn--lg btn--pulse" onclick="navigateTo('showroom')" type="button"
                 id="btnHeroBrowse">
                 <span>Browse Cars</span>
                 <span class="btn__icon">→</span>
@@ -123,19 +119,6 @@
           </div>
           <!-- Horizontal Scroll Container -->
           <div class="featured-scroll" id="featuredGrid"></div>
-        </div>
-      </section>
-
-      <!-- Brand Grid Section -->
-      <section class="section section--surface reveal" id="brandsSection">
-        <div class="container">
-          <div class="section__header">
-            <span class="section__label">Our Brands</span>
-            <h2 class="section__title">Shop by Brand</h2>
-            <p class="section__subtitle">Choose from trusted automotive brands</p>
-          </div>
-          <!-- Grid Container -->
-          <div class="brand-grid" id="brandGrid"></div>
         </div>
       </section>
     </div>
@@ -176,26 +159,31 @@
     </div>
 
     <!-- ============================================================
-         SELL/TRADE-IN VIEW
+         SHOWROOM VIEW
          ============================================================ -->
-    <div class="view" id="view-sell">
+    <div class="view" id="view-showroom">
       <div class="page-header">
         <div class="container">
           <div class="page-header__breadcrumb">
             <a href="#home">Home</a>
             <span class="page-header__breadcrumb-sep">›</span>
-            <span class="page-header__breadcrumb-current">Sell / Trade-in</span>
+            <span class="page-header__breadcrumb-current">Showroom</span>
           </div>
-          <h2 class="page-header__title">Sell or Trade-In Your Car</h2>
-          <p class="page-header__subtitle">
-            Provide your vehicle specifications below and get a value offer from our team.
-          </p>
+          <h2 class="page-header__title">Our Showroom</h2>
+          <p class="page-header__subtitle">Browse, rent, or sell &mdash; all in one place.</p>
+        </div>
+      </div>
+      <div class="showroom-tabs-bar">
+        <div class="container">
+          <div class="showroom-tabs" id="showroomTabs">
+            <button class="showroom-tab" data-tab="buy" id="tabBuy" type="button">🛒 Buy</button>
+            <button class="showroom-tab" data-tab="rent" id="tabRent" type="button">🔑 Rent</button>
+            <button class="showroom-tab" data-tab="sell" id="tabSell" type="button">📋 Sell / Trade-in</button>
+          </div>
         </div>
       </div>
       <div class="section">
-        <div class="container container--narrow">
-          <div id="sellLayout"></div>
-        </div>
+        <div class="container" id="showroomContent"></div>
       </div>
     </div>
 
@@ -245,8 +233,10 @@
     crossorigin="anonymous"></script>
 
   <!-- Application Scripts -->
-  <script src="js/data.js?v=1.0.1"></script>
-  <script src="js/app.js?v=1.0.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/data.js?v=1.0.2"></script>
+  <script src="js/services.js?v=1.0.2"></script>
+  <script src="js/app.js?v=1.0.2"></script>
 </body>
 
 </html>

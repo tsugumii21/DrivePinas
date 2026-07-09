@@ -104,9 +104,6 @@ var ICONS = {
    NAVIGATION / ROUTING
    ================================================================ */
 
-/** Flag: when true, handleRoute() skips scroll-to-top and sets 'brands' active */
-var _pendingBrandsScroll = false;
-
 /** Navigate to a hash route — handles same-hash re-clicks */
 function navigateTo(route) {
   var currentHash = window.location.hash.slice(1) || "home";
@@ -154,12 +151,8 @@ function handleRoute() {
   // Close mobile nav if open
   closeMobileNav();
 
-  // Scroll to top (skip when brands scroll is pending)
-  if (!_pendingBrandsScroll) {
-    window.scrollTo(0, 0);
-  } else {
-    _pendingBrandsScroll = false;
-  }
+  // Scroll to top
+  window.scrollTo(0, 0);
 
   // Route to correct view
   switch (route) {
@@ -167,9 +160,9 @@ function handleRoute() {
       if (parts[1]) {
         renderBrandPage(parts[1]);
         showView("view-brand");
-        setActiveNav("brands");
+        setActiveNav("showroom");
       } else {
-        navigateTo("home");
+        navigateTo("showroom");
       }
       break;
 
@@ -177,16 +170,16 @@ function handleRoute() {
       if (parts[1] && parts[2] !== undefined) {
         renderUnitPage(parts[1], parseInt(parts[2], 10));
         showView("view-unit");
-        setActiveNav("brands");
+        setActiveNav("showroom");
       } else {
-        navigateTo("home");
+        navigateTo("showroom");
       }
       break;
 
-    case "sell":
-      renderSellPage();
-      showView("view-sell");
-      setActiveNav("sell");
+    case "showroom":
+      renderShowroomPage(parts[1] || "buy");
+      showView("view-showroom");
+      setActiveNav("showroom");
       break;
 
     case "contact":
@@ -198,12 +191,7 @@ function handleRoute() {
     default:
       renderHomePage();
       showView("view-home");
-      if (_pendingBrandsScroll) {
-        setActiveNav("brands");
-        _pendingBrandsScroll = false;
-      } else {
-        setActiveNav("home");
-      }
+      setActiveNav("home");
       break;
   }
 
@@ -234,7 +222,6 @@ function setActiveNav(name) {
 function renderHomePage() {
   renderHeroStats();
   renderFeaturedCars();
-  renderBrandGrid();
   renderFooter();
 }
 
@@ -351,7 +338,7 @@ function renderBrandPage(slug) {
   var breadcrumb = document.getElementById("brandBreadcrumb");
   if (breadcrumb) {
     breadcrumb.innerHTML =
-      '<a href="#home">Brands</a>' +
+      '<a href="#showroom">Showroom</a>' +
       '<span class="page-header__breadcrumb-sep">›</span>' +
       '<span class="page-header__breadcrumb-current">' + escapeHtml(brand.name) + "</span>";
   }
@@ -430,7 +417,7 @@ function renderUnitPage(slug, unitIndex) {
   var breadcrumb = document.getElementById("unitBreadcrumb");
   if (breadcrumb) {
     breadcrumb.innerHTML =
-      '<a href="#brand/' + escapeHtml(brand.slug) + '">Brands</a>' +
+      '<a href="#showroom">Showroom</a>' +
       '<span class="page-header__breadcrumb-sep">›</span>' +
       '<a href="#brand/' + escapeHtml(brand.slug) + '">' + escapeHtml(brand.name) + "</a>" +
       '<span class="page-header__breadcrumb-sep">›</span>' +
@@ -715,6 +702,7 @@ function renderFooter() {
         '<h4 class="footer__col-title">Quick Links</h4>' +
         "<ul>" +
           '<li><a href="#home">Home</a></li>' +
+          '<li><a href="#showroom" onclick="navigateTo(\'showroom\')">Showroom</a></li>' +
           '<li><a href="#contact">Contact Us</a></li>' +
         "</ul>" +
       "</div>" +
@@ -848,191 +836,677 @@ function renderContactPage() {
   }
 }
 
-function renderSellPage() {
-  var layout = document.getElementById("sellLayout");
-  if (!layout) return;
+/* ================================================================
+   RENDER: SHOWROOM PAGE
+   ================================================================ */
 
-  layout.innerHTML =
-    '<div class="contact-form-card" style="max-width: 600px; margin: 0 auto; z-index: 5; position: relative;">' +
-      '<!-- Progress Header -->' +
-      '<div class="wizard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-6);">' +
-        '<span class="wizard-step-label" style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted);">Step <span id="wizardStepNum">1</span> of 2</span>' +
-        '<div class="wizard-progress-bar" style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); margin-left: var(--sp-4); border-radius: 2px; overflow: hidden; position: relative;">' +
-          '<div class="wizard-progress-fill" id="wizardProgressFill" style="width: 50%; height: 100%; background: var(--color-accent); transition: width 0.3s ease;"></div>' +
-        '</div>' +
-      '</div>' +
+/** Photos selected for the sell form — reset on each renderSellTab() call */
+var _sellPhotos = [];
 
-      '<form class="contact-form" id="sellForm" novalidate>' +
-        '<!-- STEP 1: Specs -->' +
-        '<div class="wizard-step" id="sellStep1">' +
-          '<h3 class="contact-form-card__title" style="margin-bottom: var(--sp-4); text-align: center;">Vehicle Details</h3>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeBrand">Brand</label>' +
-              '<select class="contact-form__select" id="tradeBrand">' +
-                '<option value="toyota">Toyota</option>' +
-                '<option value="honda">Honda</option>' +
-                '<option value="mitsubishi">Mitsubishi</option>' +
-                '<option value="nissan">Nissan</option>' +
-                '<option value="ford">Ford</option>' +
-                '<option value="mazda">Mazda</option>' +
-                '<option value="suzuki">Suzuki</option>' +
-                '<option value="hyundai">Hyundai</option>' +
-              '</select>' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeModel">Model / Name</label>' +
-              '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Mirage G4 1.2 GLX" required>' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeYear">Year Model</label>' +
-              '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required>' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradePrice">Asking Price (₱)</label>' +
-              '<input class="contact-form__input" type="number" id="tradePrice" placeholder="500000" required>' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeOdometer">Odometer</label>' +
-              '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 25,000 km">' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeTransmission">Transmission</label>' +
-              '<select class="contact-form__select" id="tradeTransmission">' +
-                '<option value="Automatic">Automatic</option>' +
-                '<option value="Manual">Manual</option>' +
-              '</select>' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeFuel">Fuel Type</label>' +
-              '<select class="contact-form__select" id="tradeFuel">' +
-                '<option value="Gasoline">Gasoline</option>' +
-                '<option value="Diesel">Diesel</option>' +
-                '<option value="Hybrid">Hybrid</option>' +
-                '<option value="Electric">Electric</option>' +
-              '</select>' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="tradeBody">Body Type</label>' +
-              '<select class="contact-form__select" id="tradeBody">' +
-                '<option value="Sedan">Sedan</option>' +
-                '<option value="SUV">SUV</option>' +
-                '<option value="Pickup">Pickup</option>' +
-                '<option value="MPV">MPV</option>' +
-                '<option value="Hatchback">Hatchback</option>' +
-                '<option value="Van">Van</option>' +
-              '</select>' +
-            '</div>' +
-          '</div>' +
-          '<button type="button" class="contact-form__submit" id="btnSellNext" style="margin-top: var(--sp-4);">' +
-            '<span>Continue to Seller Info</span>' +
-            '<span class="contact-form__submit-icon">&rarr;</span>' +
-          '</button>' +
-        '</div>' +
+/** Active filter state for the Buy tab */
+var _showroomFilters = { brand: "all", body: "all", price: "all", fuel: "all" };
 
-        '<!-- STEP 2: Seller & Condition -->' +
-        '<div class="wizard-step" id="sellStep2" style="display: none;">' +
-          '<h3 class="contact-form-card__title" style="margin-bottom: var(--sp-4); text-align: center;">Seller Details</h3>' +
-          '<div class="contact-form__row">' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="sellName">Full Name</label>' +
-              '<input class="contact-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required>' +
-            '</div>' +
-            '<div class="contact-form__field">' +
-              '<label class="contact-form__label" for="sellEmail">Email Address</label>' +
-              '<input class="contact-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required>' +
-            '</div>' +
-          '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="sellPhone">Phone Number</label>' +
-            '<input class="contact-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX">' +
-          '</div>' +
-          '<div class="contact-form__field">' +
-            '<label class="contact-form__label" for="tradeCondition">Condition Notes</label>' +
-            '<textarea class="contact-form__textarea" id="tradeCondition" placeholder="Describe the vehicle condition, history, or modification notes..."></textarea>' +
-          '</div>' +
-          '<div class="wizard-actions" style="display: flex; gap: var(--sp-4); margin-top: var(--sp-4);">' +
-            '<button type="button" class="btn btn--outline" id="btnSellBack" style="flex: 1; padding: 14px; font-weight: 700; font-size: 14px; border-radius: var(--radius-md);">' +
-              '&larr; Back' +
-            '</button>' +
-            '<button type="submit" class="contact-form__submit" id="btnSellSubmit" style="flex: 2; margin-top: 0;">' +
-              '<span>Submit Offer</span>' +
-              '<span class="contact-form__submit-icon">&rarr;</span>' +
-            '</button>' +
-          '</div>' +
-        '</div>' +
-      '</form>' +
-    '</div>';
-
-  var form = document.getElementById("sellForm");
-  var step1 = document.getElementById("sellStep1");
-  var step2 = document.getElementById("sellStep2");
-  var nextBtn = document.getElementById("btnSellNext");
-  var backBtn = document.getElementById("btnSellBack");
-  var stepNum = document.getElementById("wizardStepNum");
-  var progressFill = document.getElementById("wizardProgressFill");
-
-  if (nextBtn && backBtn && step1 && step2 && stepNum && progressFill) {
-    var clearBorder = function (el) {
-      el.addEventListener("input", function handler() {
-        el.style.borderColor = "";
-        el.removeEventListener("input", handler);
-      });
-    };
-
-    nextBtn.addEventListener("click", function () {
-      var tradeModel = document.getElementById("tradeModel");
-      var tradeYear = document.getElementById("tradeYear");
-      var tradePrice = document.getElementById("tradePrice");
-      var hasError = false;
-
-      // Validate Step 1 fields
-      if (!tradeModel.value.trim()) {
-        tradeModel.style.borderColor = "var(--color-accent)";
-        clearBorder(tradeModel);
-        hasError = true;
-      }
-      if (!tradeYear.value.trim() || parseInt(tradeYear.value) < 1990 || parseInt(tradeYear.value) > 2030) {
-        tradeYear.style.borderColor = "var(--color-accent)";
-        clearBorder(tradeYear);
-        hasError = true;
-      }
-      if (!tradePrice.value.trim() || parseInt(tradePrice.value) <= 0) {
-        tradePrice.style.borderColor = "var(--color-accent)";
-        clearBorder(tradePrice);
-        hasError = true;
-      }
-
-      if (hasError) return;
-
-      // Go to Step 2
-      step1.style.display = "none";
-      step2.style.display = "block";
-      stepNum.textContent = "2";
-      progressFill.style.width = "100%";
-    });
-
-    backBtn.addEventListener("click", function () {
-      // Go back to Step 1
-      step2.style.display = "none";
-      step1.style.display = "block";
-      stepNum.textContent = "1";
-      progressFill.style.width = "50%";
-    });
+/**
+ * Renders the Showroom page and activates the given tab.
+ * @param {string} [activeTab="buy"] - "buy" | "rent" | "sell"
+ */
+function renderShowroomPage(activeTab) {
+  var tab = activeTab || "buy";
+  var tabs = document.querySelectorAll(".showroom-tab");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle("active", tabs[i].dataset.tab === tab);
+    tabs[i].addEventListener("click", createTabClickHandler(tabs[i].dataset.tab));
   }
+  renderShowroomTab(tab);
+  document.title = "Showroom \u2014 " + SITE_CONFIG.name;
+}
 
-  if (form) {
-    form.addEventListener("submit", handleSellFormSubmit);
+/** Factory for tab button click handlers (avoids closure issues in loops) */
+function createTabClickHandler(tab) {
+  return function () { switchShowroomTab(tab); };
+}
+
+/** Switches the active tab with a 150ms fade-and-rise transition (Emil rule: no ease-in) */
+function switchShowroomTab(tab) {
+  var tabs = document.querySelectorAll(".showroom-tab");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle("active", tabs[i].dataset.tab === tab);
+  }
+  var content = document.getElementById("showroomContent");
+  if (!content) return;
+  content.style.transition = "opacity 150ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)";
+  content.style.opacity = "0";
+  content.style.transform = "translateY(6px)";
+  setTimeout(function () {
+    renderShowroomTab(tab);
+    content.style.opacity = "1";
+    content.style.transform = "translateY(0)";
+    setTimeout(observeRevealElements, 60);
+  }, 150);
+}
+
+/** Routes to the correct tab render function */
+function renderShowroomTab(tab) {
+  if (tab === "buy") {
+    _showroomFilters = { brand: "all", body: "all", price: "all", fuel: "all" };
+    renderBuyTab();
+  } else if (tab === "rent") {
+    renderRentTab();
+  } else if (tab === "sell") {
+    renderSellTab();
   }
 }
 
-/** Handle contact form submission with validation and toast */
+/* ================================================================
+   BUY TAB
+   ================================================================ */
+
+/**
+ * Collects all For Sale (non-rent, non-hidden) units across all brands.
+ * @returns {Array<{brand: Object, unit: Object, index: number}>}
+ */
+function getAllSaleUnits() {
+  var result = [];
+  for (var b = 0; b < BRANDS.length; b++) {
+    var brand = BRANDS[b];
+    for (var u = 0; u < brand.units.length; u++) {
+      var unit = brand.units[u];
+      if (unit.active !== false && unit.listingType !== "rent") {
+        result.push({ brand: brand, unit: unit, index: u });
+      }
+    }
+  }
+  return result;
+}
+
+/** Renders the Buy tab: filter bar + flat inventory grid */
+function renderBuyTab() {
+  var content = document.getElementById("showroomContent");
+  if (!content) return;
+
+  var brandOptions = BRANDS.map(function (b) {
+    return '<option value="' + escapeHtml(b.name.toLowerCase()) + '">' + escapeHtml(b.name) + "</option>";
+  }).join("");
+
+  content.innerHTML =
+    '<div class="inventory-filter-bar reveal">' +
+      '<div class="inventory-filter-group">' +
+        '<label class="inventory-filter-label" for="filterBrand">Brand</label>' +
+        '<select class="inventory-filter-select" id="filterBrand">' +
+          '<option value="all">All Brands</option>' + brandOptions +
+        "</select>" +
+      "</div>" +
+      '<div class="inventory-filter-group">' +
+        '<label class="inventory-filter-label" for="filterBody">Body Type</label>' +
+        '<select class="inventory-filter-select" id="filterBody">' +
+          '<option value="all">All Types</option>' +
+          '<option value="Sedan">Sedan</option>' +
+          '<option value="SUV">SUV</option>' +
+          '<option value="Pickup">Pickup</option>' +
+          '<option value="MPV">MPV</option>' +
+          '<option value="Hatchback">Hatchback</option>' +
+          '<option value="Van">Van</option>' +
+        "</select>" +
+      "</div>" +
+      '<div class="inventory-filter-group">' +
+        '<label class="inventory-filter-label" for="filterPrice">Price Range</label>' +
+        '<select class="inventory-filter-select" id="filterPrice">' +
+          '<option value="all">Any Price</option>' +
+          '<option value="under500">Under \u20b1500K</option>' +
+          '<option value="500to1m">\u20b1500K \u2013 \u20b11M</option>' +
+          '<option value="1mto2m">\u20b11M \u2013 \u20b12M</option>' +
+          '<option value="over2m">Over \u20b12M</option>' +
+        "</select>" +
+      "</div>" +
+      '<div class="inventory-filter-group">' +
+        '<label class="inventory-filter-label" for="filterFuel">Fuel Type</label>' +
+        '<select class="inventory-filter-select" id="filterFuel">' +
+          '<option value="all">All Fuels</option>' +
+          '<option value="Gasoline">Gasoline</option>' +
+          '<option value="Diesel">Diesel</option>' +
+          '<option value="Hybrid">Hybrid</option>' +
+          '<option value="Electric">Electric</option>' +
+        "</select>" +
+      "</div>" +
+    "</div>" +
+    '<p class="inventory-results-bar" id="inventoryResultsBar"></p>' +
+    '<div class="inventory-grid" id="inventoryGrid"></div>';
+
+  renderInventoryGrid(getAllSaleUnits());
+
+  var filterIds = ["filterBrand", "filterBody", "filterPrice", "filterFuel"];
+  for (var i = 0; i < filterIds.length; i++) {
+    var el = document.getElementById(filterIds[i]);
+    if (el) el.addEventListener("change", applyShowroomFilters);
+  }
+}
+
+/** Reads current filter dropdowns and re-renders the inventory grid */
+function applyShowroomFilters() {
+  var brandEl = document.getElementById("filterBrand");
+  var bodyEl = document.getElementById("filterBody");
+  var priceEl = document.getElementById("filterPrice");
+  var fuelEl = document.getElementById("filterFuel");
+
+  _showroomFilters = {
+    brand: brandEl ? brandEl.value : "all",
+    body: bodyEl ? bodyEl.value : "all",
+    price: priceEl ? priceEl.value : "all",
+    fuel: fuelEl ? fuelEl.value : "all",
+  };
+
+  var filtered = getAllSaleUnits().filter(function (item) {
+    var u = item.unit;
+    var brandMatch = _showroomFilters.brand === "all" || item.brand.name.toLowerCase() === _showroomFilters.brand;
+    var bodyMatch = _showroomFilters.body === "all" || u.body === _showroomFilters.body;
+    var fuelMatch = _showroomFilters.fuel === "all" || u.fuel === _showroomFilters.fuel;
+    var priceMatch = true;
+    if (_showroomFilters.price !== "all" && u.price !== null && u.price !== undefined) {
+      if (_showroomFilters.price === "under500") priceMatch = u.price < 500000;
+      else if (_showroomFilters.price === "500to1m") priceMatch = u.price >= 500000 && u.price <= 1000000;
+      else if (_showroomFilters.price === "1mto2m") priceMatch = u.price > 1000000 && u.price <= 2000000;
+      else if (_showroomFilters.price === "over2m") priceMatch = u.price > 2000000;
+    }
+    return brandMatch && bodyMatch && fuelMatch && priceMatch;
+  });
+
+  renderInventoryGrid(filtered);
+}
+
+/**
+ * Renders the flat inventory grid.
+ * @param {Array<{brand: Object, unit: Object, index: number}>} units
+ */
+function renderInventoryGrid(units) {
+  var grid = document.getElementById("inventoryGrid");
+  var bar = document.getElementById("inventoryResultsBar");
+  if (!grid) return;
+
+  if (bar) {
+    bar.textContent = units.length + " vehicle" + (units.length !== 1 ? "s" : "") + " found";
+  }
+
+  grid.innerHTML = "";
+  if (units.length === 0) {
+    grid.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-state__icon">\ud83d\udd0d</div>' +
+        '<p class="empty-state__text">No vehicles match your filters. Try adjusting your search.</p>' +
+      "</div>";
+    return;
+  }
+
+  for (var i = 0; i < units.length; i++) {
+    var card = createCarCard(units[i].brand, units[i].unit, units[i].index, i, false);
+    grid.appendChild(card);
+  }
+}
+
+/* ================================================================
+   RENT TAB
+   ================================================================ */
+
+/**
+ * Collects all For Rent units across all brands.
+ * @returns {Array<{brand: Object, unit: Object, index: number}>}
+ */
+function getAllRentUnits() {
+  var result = [];
+  for (var b = 0; b < BRANDS.length; b++) {
+    var brand = BRANDS[b];
+    for (var u = 0; u < brand.units.length; u++) {
+      var unit = brand.units[u];
+      if (unit.active !== false && unit.listingType === "rent") {
+        result.push({ brand: brand, unit: unit, index: u });
+      }
+    }
+  }
+  return result;
+}
+
+/** Renders the Rent tab: rental unit cards with daily rates */
+function renderRentTab() {
+  var content = document.getElementById("showroomContent");
+  if (!content) return;
+
+  var rentUnits = getAllRentUnits();
+
+  if (rentUnits.length === 0) {
+    content.innerHTML =
+      '<div class="empty-state" style="padding:var(--sp-16) 0;">' +
+        '<div class="empty-state__icon">\ud83d\udd11</div>' +
+        '<p class="empty-state__text">No rental units available at the moment. Please check back soon.</p>' +
+        '<button class="btn btn--primary" onclick="navigateTo(\'contact\')" type="button" style="margin-top:var(--sp-5);">Contact Us</button>' +
+      "</div>";
+    return;
+  }
+
+  var html = '<div class="inventory-grid inventory-grid--rent">';
+  for (var i = 0; i < rentUnits.length; i++) {
+    html += createRentCard(rentUnits[i].brand, rentUnits[i].unit, rentUnits[i].index, i);
+  }
+  html += "</div>";
+  content.innerHTML = html;
+}
+
+/**
+ * Builds an HTML string for a single rental car card.
+ * @param {Object} brand
+ * @param {Object} unit
+ * @param {number} unitIndex
+ * @param {number} staggerIndex
+ * @returns {string}
+ */
+function createRentCard(brand, unit, unitIndex, staggerIndex) {
+  var imgSrc = getCarImage(unit.images[0], IMAGE_CONFIG.cardWidth, IMAGE_CONFIG.cardHeight);
+  var rateDisplay = unit.dailyRate
+    ? "\u20b1" + unit.dailyRate.toLocaleString("en-PH") + '<span class="rent-card__rate-period">/day</span>'
+    : '<span class="rent-card__rate-call">Contact for Rate</span>';
+
+  return (
+    '<div class="rent-card reveal" style="transition-delay:' + staggerIndex * ANIMATION_CONFIG.staggerDelayMs + 'ms">' +
+      '<div class="rent-card__image-wrap">' +
+        '<img class="rent-card__image" src="' + imgSrc + '" ' +
+          'alt="' + escapeHtml(brand.name + " " + unit.name) + '" loading="lazy" ' +
+          'onerror="this.src=\'' + getPlaceholderSvg(brand.name) + '\'">' +
+        '<span class="rent-card__badge">For Rent</span>' +
+      "</div>" +
+      '<div class="rent-card__body">' +
+        '<h3 class="rent-card__title">' + escapeHtml(brand.name + " " + unit.name) + "</h3>" +
+        '<p class="rent-card__year">' + unit.year + " \u00b7 " + escapeHtml(unit.body) + "</p>" +
+        '<div class="rent-card__specs">' +
+          '<span class="spec-chip">\u2699 ' + escapeHtml(unit.transmission) + "</span>" +
+          '<span class="spec-chip">\u26fd " + escapeHtml(unit.fuel) + "</span>" +
+          '<span class="spec-chip">\ud83d\udccd ' + escapeHtml(unit.odometer) + "</span>" +
+        "</div>" +
+        '<div class="rent-card__rate">' + rateDisplay + "</div>" +
+        '<button class="rent-card__cta" onclick="navigateTo(\'contact\')" type="button" ' +
+          'id="btnRent-' + brand.slug + "-" + unitIndex + '">Book Now \u2192</button>' +
+      "</div>" +
+    "</div>"
+  );
+}
+
+/* ================================================================
+   SELL TAB
+   ================================================================ */
+
+/**
+ * Builds <option> elements from the BRANDS array for the brand dropdown.
+ * @returns {string}
+ */
+function buildBrandOptions() {
+  return BRANDS.map(function (b) {
+    return '<option value="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + "</option>";
+  }).join("") + '<option value="other">Other</option>';
+}
+
+/**
+ * Renders a single benefit list item for the sell benefits panel.
+ * @param {string} title
+ * @param {string} desc
+ * @returns {string}
+ */
+function createBenefitItem(title, desc) {
+  return (
+    '<div class="sell-benefit-item">' +
+      '<span class="sell-benefit-item__icon" aria-hidden="true">\u2713</span>' +
+      "<div><strong>" + escapeHtml(title) + "</strong><p>" + escapeHtml(desc) + "</p></div>" +
+    "</div>"
+  );
+}
+
+/** Renders the Sell / Trade-in tab with split layout: benefits panel + wizard form */
+function renderSellTab() {
+  var content = document.getElementById("showroomContent");
+  if (!content) return;
+
+  content.innerHTML =
+    '<div class="sell-split">' +
+
+      '<div class="sell-benefits">' +
+        '<span class="sell-benefits__tag">Sell or Trade-In</span>' +
+        '<h2 class="sell-benefits__title">Get the Best<br>Value for Your Car</h2>' +
+        '<p class="sell-benefits__subtitle">Join hundreds of satisfied sellers who trusted DrivePinas for a fair, fast, and hassle-free experience.</p>' +
+        '<div class="sell-benefits__list">' +
+          createBenefitItem("Free Professional Valuation", "Our experts assess your vehicle at no cost to you.") +
+          createBenefitItem("Fast, Hassle-Free Process", "Submit details online — we'll reach out within 24 hours.") +
+          createBenefitItem("Trusted by Hundreds", "A track record of fair deals and transparent pricing.") +
+        "</div>" +
+        '<div class="sell-benefits__stats">' +
+          '<div class="sell-benefits__stat"><span class="sell-benefits__stat-value">500+</span><span class="sell-benefits__stat-label">Cars Acquired</span></div>' +
+          '<div class="sell-benefits__stat"><span class="sell-benefits__stat-value">24h</span><span class="sell-benefits__stat-label">Response Time</span></div>' +
+          '<div class="sell-benefits__stat"><span class="sell-benefits__stat-value">100%</span><span class="sell-benefits__stat-label">Free Valuation</span></div>' +
+        "</div>" +
+      "</div>" +
+
+      '<div class="sell-form-wrapper">' +
+        '<div class="sell-wizard-card">' +
+          '<div class="wizard-header">' +
+            '<span class="wizard-step-label">Step <span id="wizardStepNum">1</span> of 2</span>' +
+            '<div class="wizard-progress-track"><div class="wizard-progress-fill" id="wizardProgressFill" style="width:50%"></div></div>' +
+          "</div>" +
+
+          '<form id="sellForm" novalidate>' +
+
+            '<div class="wizard-step" id="sellStep1">' +
+              '<h3 class="sell-wizard-card__title">Vehicle Details</h3>' +
+              '<div class="contact-form__row">' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeBrand">Brand</label>' +
+                  '<select class="contact-form__select" id="tradeBrand">' + buildBrandOptions() + "</select></div>" +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeModel">Model / Name <span class="sell-required">*</span></label>' +
+                  '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Civic 1.5 RS Turbo" required></div>' +
+              "</div>" +
+              '<div class="contact-form__row">' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeVariant">Variant / Trim</label>' +
+                  '<input class="contact-form__input" type="text" id="tradeVariant" placeholder="e.g. 1.5 V AT"></div>' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeYear">Year Model <span class="sell-required">*</span></label>' +
+                  '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required></div>' +
+              "</div>" +
+              '<div class="contact-form__row">' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeColor">Color</label>' +
+                  '<input class="contact-form__input" type="text" id="tradeColor" placeholder="e.g. Pearl White"></div>' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeOdometer">Odometer Reading</label>' +
+                  '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 45,000 km"></div>' +
+              "</div>" +
+              '<div class="contact-form__row">' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeBody">Body Type <span class="sell-required">*</span></label>' +
+                  '<select class="contact-form__select" id="tradeBody">' +
+                    '<option value="Sedan">Sedan</option><option value="SUV">SUV</option><option value="Pickup">Pickup</option>' +
+                    '<option value="MPV">MPV</option><option value="Hatchback">Hatchback</option><option value="Van">Van</option>' +
+                    '<option value="Coupe">Coupe</option><option value="Other">Other</option>' +
+                  "</select></div>" +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeTransmission">Transmission <span class="sell-required">*</span></label>' +
+                  '<select class="contact-form__select" id="tradeTransmission">' +
+                    '<option value="Automatic">Automatic</option><option value="Manual">Manual</option>' +
+                    '<option value="CVT">CVT</option><option value="DCT">DCT (Dual Clutch)</option>' +
+                  "</select></div>" +
+              "</div>" +
+              '<div class="contact-form__row">' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeFuel">Fuel Type <span class="sell-required">*</span></label>' +
+                  '<select class="contact-form__select" id="tradeFuel">' +
+                    '<option value="Gasoline">Gasoline</option><option value="Diesel">Diesel</option>' +
+                    '<option value="Hybrid">Hybrid</option><option value="Electric">Electric</option>' +
+                  "</select></div>" +
+                '<div class="contact-form__field"><label class="contact-form__label" for="tradeOwners">Previous Owners</label>' +
+                  '<select class="contact-form__select" id="tradeOwners">' +
+                    '<option value="1st">1st Owner</option><option value="2nd">2nd Owner</option><option value="3rd+">3rd Owner or More</option>' +
+                  "</select></div>" +
+              "</div>" +
+              '<div class="contact-form__field"><label class="contact-form__label" for="tradePrice">Asking Price (\u20b1) <span class="sell-required">*</span></label>' +
+                '<input class="contact-form__input" type="number" id="tradePrice" placeholder="e.g. 850000" min="1" required></div>' +
+              '<button type="button" class="contact-form__submit" id="btnSellNext" style="margin-top:var(--sp-5);">' +
+                '<span>Continue</span><span class="contact-form__submit-icon">&rarr;</span>' +
+              "</button>" +
+            "</div>" +
+
+            '<div class="wizard-step" id="sellStep2" style="display:none;">' +
+              '<h3 class="sell-wizard-card__title">Condition, Photos &amp; Your Details</h3>' +
+              '<div class="contact-form__field"><label class="contact-form__label">Overall Condition <span class="sell-required">*</span></label>' +
+                '<div class="condition-radio-group" id="conditionGroup">' +
+                  '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Excellent" id="condExcellent"><span class="condition-radio__label condition-radio__label--excellent">Excellent</span></label>' +
+                  '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Good" id="condGood" checked><span class="condition-radio__label condition-radio__label--good">Good</span></label>' +
+                  '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Fair" id="condFair"><span class="condition-radio__label condition-radio__label--fair">Fair</span></label>' +
+                  '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Poor" id="condPoor"><span class="condition-radio__label condition-radio__label--poor">Poor</span></label>' +
+                "</div></div>" +
+              '<div class="contact-form__field"><label class="contact-form__label" for="tradeRegStatus">Registration Status <span class="sell-required">*</span></label>' +
+                '<select class="contact-form__select" id="tradeRegStatus">' +
+                  '<option value="OR/CR Complete">OR/CR Complete</option><option value="Expired">Expired</option><option value="For Transfer">For Transfer</option>' +
+                "</select></div>" +
+              '<div class="contact-form__field"><label class="contact-form__label" for="tradeIssues">Known Issues</label>' +
+                '<textarea class="contact-form__textarea" id="tradeIssues" placeholder="Mechanical issues, body damage, accidents, etc. Leave blank if none." style="min-height:80px;"></textarea></div>' +
+              '<div class="contact-form__field"><label class="contact-form__label" for="tradeDescription">Description</label>' +
+                '<textarea class="contact-form__textarea" id="tradeDescription" placeholder="Highlight your car\'s best features, recent servicing, accessories, or reasons for selling..." style="min-height:90px;"></textarea></div>' +
+              '<div class="contact-form__field">' +
+                '<label class="contact-form__label">Photos <span class="sell-required-note">(up to 7 \u00b7 auto-compressed)</span></label>' +
+                '<div class="photo-upload-zone" id="photoUploadZone" role="button" tabindex="0" aria-label="Click to upload photos">' +
+                  '<input type="file" id="photoFileInput" accept="image/*" multiple style="display:none;">' +
+                  '<div class="photo-upload-zone__inner">' +
+                    '<div class="photo-upload-zone__icon">\ud83d\udcf7</div>' +
+                    '<p class="photo-upload-zone__text">Click or drag photos here</p>' +
+                    '<p class="photo-upload-zone__hint">JPEG &nbsp;\u00b7&nbsp; PNG &nbsp;\u00b7&nbsp; WEBP &nbsp;\u00b7&nbsp; Max 7 photos &nbsp;\u00b7&nbsp; Auto-compressed</p>' +
+                  "</div>" +
+                "</div>" +
+                '<p class="photo-counter" id="photoCounter" style="display:none;"></p>' +
+                '<div class="photo-preview-grid" id="photoPreviewGrid"></div>' +
+              "</div>" +
+              '<div class="contact-form__row">' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="sellName">Full Name <span class="sell-required">*</span></label>' +
+                  '<input class="contact-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required></div>' +
+                '<div class="contact-form__field"><label class="contact-form__label" for="sellEmail">Email Address <span class="sell-required">*</span></label>' +
+                  '<input class="contact-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required></div>' +
+              "</div>" +
+              '<div class="contact-form__field"><label class="contact-form__label" for="sellPhone">Phone Number</label>' +
+                '<input class="contact-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX"></div>' +
+              '<div class="wizard-actions">' +
+                '<button type="button" class="btn btn--outline" id="btnSellBack">&larr; Back</button>' +
+                '<button type="submit" class="contact-form__submit" id="btnSellSubmit">' +
+                  '<span id="btnSellSubmitText">Submit Offer</span><span class="contact-form__submit-icon">&rarr;</span>' +
+                "</button>" +
+              "</div>" +
+              '<p class="upload-progress-text" id="uploadProgressText" style="display:none;"></p>' +
+            "</div>" +
+
+          "</form>" +
+        "</div>" +
+      "</div>" +
+    "</div>";
+
+  _sellPhotos = [];
+  initSellWizard();
+}
+
+/** Wires up all event listeners for the sell wizard form */
+function initSellWizard() {
+  var nextBtn = document.getElementById("btnSellNext");
+  var backBtn = document.getElementById("btnSellBack");
+  var step1 = document.getElementById("sellStep1");
+  var step2 = document.getElementById("sellStep2");
+  var form = document.getElementById("sellForm");
+  var stepNum = document.getElementById("wizardStepNum");
+  var progressFill = document.getElementById("wizardProgressFill");
+  var photoZone = document.getElementById("photoUploadZone");
+  var fileInput = document.getElementById("photoFileInput");
+
+  if (!nextBtn || !backBtn || !step1 || !step2 || !form) return;
+
+  var clearBorderOnInput = function (el) {
+    el.addEventListener("input", function handler() {
+      el.style.borderColor = "";
+      el.removeEventListener("input", handler);
+    });
+  };
+
+  // Validate Step 1 and advance to Step 2
+  nextBtn.addEventListener("click", function () {
+    var tradeModel = document.getElementById("tradeModel");
+    var tradeYear = document.getElementById("tradeYear");
+    var tradePrice = document.getElementById("tradePrice");
+    var hasError = false;
+
+    if (!tradeModel.value.trim()) {
+      tradeModel.style.borderColor = "var(--color-accent)";
+      clearBorderOnInput(tradeModel);
+      hasError = true;
+    }
+    var yearVal = parseInt(tradeYear.value, 10);
+    if (!tradeYear.value.trim() || yearVal < SELL_FORM_CONFIG.minYear || yearVal > SELL_FORM_CONFIG.maxYear) {
+      tradeYear.style.borderColor = "var(--color-accent)";
+      clearBorderOnInput(tradeYear);
+      hasError = true;
+    }
+    if (!tradePrice.value.trim() || parseInt(tradePrice.value, 10) <= 0) {
+      tradePrice.style.borderColor = "var(--color-accent)";
+      clearBorderOnInput(tradePrice);
+      hasError = true;
+    }
+    if (hasError) return;
+
+    step1.style.display = "none";
+    step2.style.display = "block";
+    if (stepNum) stepNum.textContent = "2";
+    if (progressFill) progressFill.style.width = "100%";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Go back to Step 1
+  backBtn.addEventListener("click", function () {
+    step2.style.display = "none";
+    step1.style.display = "block";
+    if (stepNum) stepNum.textContent = "1";
+    if (progressFill) progressFill.style.width = "50%";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Photo upload zone interactions
+  if (photoZone && fileInput) {
+    photoZone.addEventListener("click", function () { fileInput.click(); });
+    photoZone.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); }
+    });
+    photoZone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      photoZone.classList.add("is-dragover");
+    });
+    photoZone.addEventListener("dragleave", function () { photoZone.classList.remove("is-dragover"); });
+    photoZone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      photoZone.classList.remove("is-dragover");
+      handlePhotoFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener("change", function () {
+      handlePhotoFiles(fileInput.files);
+      fileInput.value = "";
+    });
+  }
+
+  form.addEventListener("submit", handleSellFormSubmit);
+}
+
+/**
+ * Handles new photo files: compresses each and adds to _sellPhotos.
+ * @param {FileList} files
+ */
+function handlePhotoFiles(files) {
+  var remaining = SELL_FORM_CONFIG.maxPhotos - _sellPhotos.length;
+  if (remaining <= 0) {
+    showSellError("Maximum " + SELL_FORM_CONFIG.maxPhotos + " photos allowed. Remove one to add another.");
+    return;
+  }
+  var toProcess = Math.min(files.length, remaining);
+  for (var i = 0; i < toProcess; i++) {
+    (function (file) {
+      compressImage(file).then(function (blob) {
+        _sellPhotos.push({ file: file, blob: blob });
+        updatePhotoPreview();
+      }).catch(function () {
+        showSellError("Could not process \"" + file.name + "\". Please try a different image.");
+      });
+    })(files[i]);
+  }
+}
+
+/** Re-renders the photo preview grid from _sellPhotos */
+function updatePhotoPreview() {
+  var grid = document.getElementById("photoPreviewGrid");
+  var counter = document.getElementById("photoCounter");
+  if (!grid) return;
+
+  if (counter) {
+    counter.textContent = _sellPhotos.length + " / " + SELL_FORM_CONFIG.maxPhotos +
+      " photo" + (_sellPhotos.length !== 1 ? "s" : "") + " added";
+    counter.style.display = _sellPhotos.length > 0 ? "block" : "none";
+  }
+
+  grid.innerHTML = "";
+  for (var i = 0; i < _sellPhotos.length; i++) {
+    grid.innerHTML += renderPhotoPreviewItem(_sellPhotos[i].file, _sellPhotos[i].blob, i);
+  }
+
+  var removeBtns = grid.querySelectorAll(".photo-preview-item__remove");
+  for (var j = 0; j < removeBtns.length; j++) {
+    removeBtns[j].addEventListener("click", createRemovePhotoHandler(parseInt(removeBtns[j].dataset.index, 10)));
+  }
+}
+
+/** Factory for photo remove button handlers — avoids closure issues in loops */
+function createRemovePhotoHandler(index) {
+  return function () {
+    _sellPhotos.splice(index, 1);
+    updatePhotoPreview();
+  };
+}
+
+/**
+ * Builds HTML for a single photo preview item showing original vs compressed size.
+ * @param {File} file - Original image file
+ * @param {Blob} blob - Compressed JPEG blob
+ * @param {number} index - Position in _sellPhotos array
+ * @returns {string}
+ */
+function renderPhotoPreviewItem(file, blob, index) {
+  var origKb = (file.size / 1024).toFixed(0);
+  var compKb = (blob.size / 1024).toFixed(0);
+  var url = URL.createObjectURL(blob);
+  return (
+    '<div class="photo-preview-item">' +
+      '<img class="photo-preview-item__img" src="' + url + '" alt="Photo ' + (index + 1) + '">' +
+      '<button class="photo-preview-item__remove" type="button" data-index="' + index +
+        '" aria-label="Remove photo ' + (index + 1) + '">\u00d7</button>' +
+      '<span class="photo-size-badge">' + origKb + "KB \u2192 " + compKb + "KB</span>" +
+    "</div>"
+  );
+}
+
+/**
+ * Compresses an image File using the Canvas API.
+ * Resizes to max 1280px wide and encodes as JPEG at 80% quality.
+ * @param {File} file - Original image File object.
+ * @returns {Promise<Blob>} Compressed JPEG blob.
+ */
+function compressImage(file) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onerror = function () { reject(new Error("FileReader failed for: " + file.name)); };
+    reader.onload = function (evt) {
+      var img = new Image();
+      img.onerror = function () { reject(new Error("Image load failed for: " + file.name)); };
+      img.onload = function () {
+        var maxW = SELL_FORM_CONFIG.maxImageWidthPx;
+        var scale = img.width > maxW ? maxW / img.width : 1;
+        var w = Math.round(img.width * scale);
+        var h = Math.round(img.height * scale);
+        var canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        canvas.toBlob(
+          function (blob) {
+            if (blob) { resolve(blob); }
+            else { reject(new Error("Canvas toBlob returned null for: " + file.name)); }
+          },
+          "image/jpeg",
+          SELL_FORM_CONFIG.jpegQuality
+        );
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/** Shows an inline error message inside the sell form (auto-removes after 4s) */
+function showSellError(msg) {
+  var existing = document.getElementById("sellErrorMsg");
+  if (existing) existing.remove();
+  var el = document.createElement("p");
+  el.id = "sellErrorMsg";
+  el.setAttribute("role", "alert");
+  el.style.cssText = "color:var(--color-accent);font-size:var(--fs-sm);margin-top:var(--sp-3);text-align:center;";
+  el.textContent = msg;
+  var step2 = document.getElementById("sellStep2");
+  if (step2) step2.appendChild(el);
+  setTimeout(functio/** Handle contact form submission with validation and toast */
 function handleContactFormSubmit(e) {
   e.preventDefault();
 
@@ -1147,20 +1621,44 @@ function handleContactFormSubmit(e) {
   }, 800);
 }
 
+/**
+ * Handles the Sell/Trade-in wizard form submission.
+ * Validates fields, compresses photos, uploads to Cloudinary, and saves to Supabase.
+ * @param {Event} e - Submit event
+ */
 function handleSellFormSubmit(e) {
   e.preventDefault();
 
-  var name = e.target.querySelector("#sellName");
-  var email = e.target.querySelector("#sellEmail");
-  var phone = e.target.querySelector("#sellPhone");
-  var tradeModel = document.getElementById("tradeModel");
-  var tradeYear = document.getElementById("tradeYear");
-  var tradePrice = document.getElementById("tradePrice");
+  var name = document.getElementById("sellName");
+  var email = document.getElementById("sellEmail");
+  var phone = document.getElementById("sellPhone");
+  
+  var brandSelect = document.getElementById("tradeBrand");
+  var brandSlug = brandSelect ? brandSelect.value : "other";
+  
+  var model = document.getElementById("tradeModel");
+  var variant = document.getElementById("tradeVariant");
+  var year = document.getElementById("tradeYear");
+  var color = document.getElementById("tradeColor");
+  var odometer = document.getElementById("tradeOdometer");
+  var body = document.getElementById("tradeBody");
+  var transmission = document.getElementById("tradeTransmission");
+  var fuel = document.getElementById("tradeFuel");
+  var owners = document.getElementById("tradeOwners");
+  var price = document.getElementById("tradePrice");
+  
+  var condRating = document.querySelector('input[name="tradeConditionRating"]:checked');
+  var condRatingVal = condRating ? condRating.value : "Good";
+  
+  var regStatus = document.getElementById("tradeRegStatus");
+  var knownIssues = document.getElementById("tradeIssues");
+  var description = document.getElementById("tradeDescription");
+  
   var submitBtn = document.getElementById("btnSellSubmit");
+  var progressText = document.getElementById("uploadProgressText");
 
   var hasError = false;
 
-  // Clear borders dynamically on edit (Emil style)
   var clearBorder = function (el) {
     el.addEventListener("input", function handler() {
       el.style.borderColor = "";
@@ -1168,131 +1666,118 @@ function handleSellFormSubmit(e) {
     });
   };
 
-  // Validate Name
-  if (!name.value.trim()) {
-    name.style.borderColor = "var(--color-accent)";
-    clearBorder(name);
+  // Validate Step 2 fields
+  if (!name || !name.value.trim()) {
+    if (name) name.style.borderColor = "var(--color-accent)";
+    if (name) clearBorder(name);
     hasError = true;
   }
 
-  // Validate Email
   var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email.value.trim() || !emailRegex.test(email.value.trim())) {
-    email.style.borderColor = "var(--color-accent)";
-    clearBorder(email);
+  if (!email || !email.value.trim() || !emailRegex.test(email.value.trim())) {
+    if (email) email.style.borderColor = "var(--color-accent)";
+    if (email) clearBorder(email);
     hasError = true;
   }
 
-  // Validate Model
-  if (!tradeModel.value.trim()) {
-    tradeModel.style.borderColor = "var(--color-accent)";
-    clearBorder(tradeModel);
-    hasError = true;
+  if (hasError) {
+    showSellError("Please fill in all required seller details.");
+    return;
   }
 
-  // Validate Year
-  if (!tradeYear.value.trim() || parseInt(tradeYear.value) < 1990 || parseInt(tradeYear.value) > 2030) {
-    tradeYear.style.borderColor = "var(--color-accent)";
-    clearBorder(tradeYear);
-    hasError = true;
+  // Double check Step 1 fields just in case
+  if (!model || !model.value.trim()) hasError = true;
+  var yearVal = year ? parseInt(year.value, 10) : 0;
+  if (!year || !year.value.trim() || yearVal < SELL_FORM_CONFIG.minYear || yearVal > SELL_FORM_CONFIG.maxYear) hasError = true;
+  if (!price || !price.value.trim() || parseInt(price.value, 10) <= 0) hasError = true;
+
+  if (hasError) {
+    showSellError("Please go back and correct errors in vehicle details.");
+    return;
   }
 
-  // Validate Price
-  if (!tradePrice.value.trim() || parseInt(tradePrice.value) <= 0) {
-    tradePrice.style.borderColor = "var(--color-accent)";
-    clearBorder(tradePrice);
-    hasError = true;
+  // Visual loading feedback
+  if (submitBtn) submitBtn.disabled = true;
+  if (progressText) {
+    progressText.textContent = "Processing photos...";
+    progressText.style.display = "block";
   }
 
-  if (hasError) return;
-
-  var nameVal = name.value.trim();
-  var emailVal = email.value.trim();
-  var phoneVal = phone ? phone.value.trim() : "";
-  
-  var brandSelect = document.getElementById("tradeBrand");
-  var brandName = brandSelect.options[brandSelect.selectedIndex].text;
-  var brandSlug = brandSelect.value;
-  var tradeModelVal = tradeModel.value.trim();
-  var tradeYearVal = parseInt(tradeYear.value);
-  var tradePriceVal = parseInt(tradePrice.value);
-  var tradeOdometerVal = document.getElementById("tradeOdometer").value.trim() || "N/A";
-  var tradeTransmissionVal = document.getElementById("tradeTransmission").value;
-  var tradeFuelVal = document.getElementById("tradeFuel").value;
-  var tradeBodyVal = document.getElementById("tradeBody").value;
-  var tradeConditionVal = document.getElementById("tradeCondition").value.trim() || "Good condition.";
-
-  // Submit button visual feedback
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    var originalBtnHtml = submitBtn.innerHTML;
-    submitBtn.innerHTML = "<span>Submitting...</span>";
-  }
-
-  // Simulate network dispatch with a slight delay
-  setTimeout(function () {
-    var stored = localStorage.getItem("dp_admin_data");
-    var adminDb = { brands: [], messages: [], notifications: [], acquisitions: [], nextCarId: 100, nextNotificationId: 10 };
-    if (stored) {
-      try {
-        adminDb = JSON.parse(stored);
-      } catch (err) {
-        // use default
+  // Upload photos one by one to Cloudinary
+  var uploadPromises = _sellPhotos.map(function (photoObj, idx) {
+    return function () {
+      if (progressText) {
+        progressText.textContent = "Uploading photo " + (idx + 1) + " of " + _sellPhotos.length + "...";
       }
-    }
-
-    if (!adminDb.acquisitions) adminDb.acquisitions = [];
-    if (!adminDb.notifications) adminDb.notifications = [];
-    if (!adminDb.nextNotificationId) adminDb.nextNotificationId = 10;
-
-    var newAcq = {
-      id: Math.floor(Math.random() * 90000) + 10000,
-      brandSlug: brandSlug,
-      brandName: brandName,
-      name: tradeModelVal,
-      year: tradeYearVal,
-      price: tradePriceVal,
-      odometer: tradeOdometerVal,
-      transmission: tradeTransmissionVal,
-      fuel: tradeFuelVal,
-      body: tradeBodyVal,
-      contactLink: emailVal,
-      condition: tradeConditionVal,
-      time: new Date().toISOString()
+      return uploadPhotoToCloudinary(photoObj.blob);
     };
+  });
 
-    adminDb.acquisitions.unshift(newAcq);
+  // Execute sequential uploads to avoid overloading bandwidth and get accurate progress
+  var photoUrls = [];
+  var uploadChain = Promise.resolve();
 
-    adminDb.notifications.unshift({
-      id: adminDb.nextNotificationId++,
-      type: "acquisition",
-      title: "New Trade-in Offer: " + brandName + " " + tradeModelVal,
-      message: "Asking Price: ₱" + tradePriceVal.toLocaleString() + " | Year: " + tradeYearVal,
-      time: new Date().toISOString(),
-      read: false
+  uploadPromises.forEach(function (uploadFn) {
+    uploadChain = uploadChain.then(uploadFn).then(function (url) {
+      photoUrls.push(url);
     });
+  });
 
-    localStorage.setItem("dp_admin_data", JSON.stringify(adminDb));
+  uploadChain
+    .then(function () {
+      if (progressText) {
+        progressText.textContent = "Saving submission...";
+      }
+      
+      var submissionData = {
+        brand: brandSlug,
+        model: model.value.trim(),
+        variant: variant ? variant.value.trim() || null : null,
+        year: yearVal,
+        color: color ? color.value.trim() || null : null,
+        body_type: body ? body.value : "Other",
+        transmission: transmission ? transmission.value : "Automatic",
+        fuel_type: fuel ? fuel.value : "Gasoline",
+        odometer: odometer ? odometer.value.trim() || null : null,
+        num_owners: owners ? owners.value : "1st",
+        asking_price: parseInt(price.value, 10),
+        condition: condRatingVal,
+        registration_status: regStatus ? regStatus.value : "OR/CR Complete",
+        known_issues: knownIssues ? knownIssues.value.trim() || null : null,
+        description: description ? description.value.trim() || null : null,
+        photo_urls: photoUrls,
+        seller_name: name.value.trim(),
+        seller_email: email.value.trim(),
+        seller_phone: phone ? phone.value.trim() || null : null,
+        status: "pending"
+      };
 
-    // Reset field borders
-    name.style.borderColor = "";
-    email.style.borderColor = "";
-    tradeModel.style.borderColor = "";
-    tradeYear.style.borderColor = "";
-    tradePrice.style.borderColor = "";
-
-    // Clear form
-    e.target.reset();
-
-    // Show success toast
-    showContactToast();
-
-    // Restore submit button
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalBtnHtml;
-    }
-  }, 800);
+      return saveSellSubmission(submissionData);
+    })
+    .then(function () {
+      // Success!
+      if (progressText) progressText.style.display = "none";
+      
+      // Reset form & state
+      e.target.reset();
+      _sellPhotos = [];
+      updatePhotoPreview();
+      
+      // Show success toast
+      showContactToast();
+      
+      // Return to tab/sell view
+      renderSellTab();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    })
+    .catch(function (err) {
+      console.error("Submission failed:", err);
+      showSellError("Submission failed. Please check your connection and try again.");
+    })
+    .finally(function () {
+      if (submitBtn) submitBtn.disabled = false;
+      if (progressText) progressText.style.display = "none";
+    });
 }
 
 /** Show a success toast notification */

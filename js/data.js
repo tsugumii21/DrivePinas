@@ -60,6 +60,18 @@ const ANIMATION_CONFIG = {
 };
 
 /* ----------------------------------------------------------------
+   SELL FORM CONFIGURATION
+   ---------------------------------------------------------------- */
+const SELL_FORM_CONFIG = {
+  maxPhotos: 7,
+  maxImageWidthPx: 1280,
+  jpegQuality: 0.8,
+  stepCount: 2,
+  minYear: 1990,
+  maxYear: 2030,
+};
+
+/* ----------------------------------------------------------------
    BRAND & CAR DATA
    ---------------------------------------------------------------- */
 const BRANDS = [
@@ -123,6 +135,22 @@ const BRANDS = [
         sold: true,
         featured: false,
         images: [130, 131, 132, 133],
+      },
+      {
+        name: "Hi-Ace Commuter 3.0 DSL MT",
+        year: 2022,
+        price: null,
+        dailyRate: 4500,
+        listingType: "rent",
+        odometer: "38,000 km",
+        transmission: "Manual",
+        fuel: "Diesel",
+        body: "Van",
+        condition:
+          "Well-maintained 15-seater van. Ideal for group trips, events, and transfers. Cold AC throughout.",
+        sold: false,
+        featured: false,
+        images: [145, 146, 147, 148],
       },
     ],
   },
@@ -221,6 +249,22 @@ const BRANDS = [
         sold: false,
         featured: false,
         images: [320, 321, 322, 323],
+      },
+      {
+        name: "Xpander Cross 1.5 Premium CVT",
+        year: 2023,
+        price: null,
+        dailyRate: 3200,
+        listingType: "rent",
+        odometer: "12,000 km",
+        transmission: "Automatic",
+        fuel: "Gasoline",
+        body: "MPV",
+        condition:
+          "Almost brand new 7-seater MPV. Perfect for family road trips and airport transfers.",
+        sold: false,
+        featured: false,
+        images: [330, 331, 332, 333],
       },
     ],
   },
@@ -431,6 +475,22 @@ const BRANDS = [
         sold: false,
         featured: false,
         images: [720, 721, 722, 723],
+      },
+      {
+        name: "Tucson 2.0 GL AT",
+        year: 2022,
+        price: null,
+        dailyRate: 3800,
+        listingType: "rent",
+        odometer: "22,000 km",
+        transmission: "Automatic",
+        fuel: "Gasoline",
+        body: "SUV",
+        condition:
+          "Sleek compact SUV rental. Comfortable for city and out-of-town drives. Backup camera and Apple CarPlay included.",
+        sold: false,
+        featured: false,
+        images: [715, 716, 717, 718],
       },
     ],
   },
