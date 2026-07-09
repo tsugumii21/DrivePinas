@@ -932,13 +932,13 @@ function renderBuyTab() {
     '<div class="inventory-filter-bar reveal">' +
       '<div class="inventory-filter-group">' +
         '<label class="inventory-filter-label" for="filterBrand">Brand</label>' +
-        '<select class="inventory-filter-select" id="filterBrand">' +
+        '<select class="showroom-filter-select" id="filterBrand">' +
           '<option value="all">All Brands</option>' + brandOptions +
         "</select>" +
       "</div>" +
       '<div class="inventory-filter-group">' +
         '<label class="inventory-filter-label" for="filterBody">Body Type</label>' +
-        '<select class="inventory-filter-select" id="filterBody">' +
+        '<select class="showroom-filter-select" id="filterBody">' +
           '<option value="all">All Types</option>' +
           '<option value="Sedan">Sedan</option>' +
           '<option value="SUV">SUV</option>' +
@@ -950,7 +950,7 @@ function renderBuyTab() {
       "</div>" +
       '<div class="inventory-filter-group">' +
         '<label class="inventory-filter-label" for="filterPrice">Price Range</label>' +
-        '<select class="inventory-filter-select" id="filterPrice">' +
+        '<select class="showroom-filter-select" id="filterPrice">' +
           '<option value="all">Any Price</option>' +
           '<option value="under500">Under \u20b1500K</option>' +
           '<option value="500to1m">\u20b1500K \u2013 \u20b11M</option>' +
@@ -960,7 +960,7 @@ function renderBuyTab() {
       "</div>" +
       '<div class="inventory-filter-group">' +
         '<label class="inventory-filter-label" for="filterFuel">Fuel Type</label>' +
-        '<select class="inventory-filter-select" id="filterFuel">' +
+        '<select class="showroom-filter-select" id="filterFuel">' +
           '<option value="all">All Fuels</option>' +
           '<option value="Gasoline">Gasoline</option>' +
           '<option value="Diesel">Diesel</option>' +
@@ -1030,7 +1030,7 @@ function renderInventoryGrid(units) {
   if (units.length === 0) {
     grid.innerHTML =
       '<div class="empty-state">' +
-        '<div class="empty-state__icon">\ud83d\udd0d</div>' +
+        '<div class="empty-state__icon"><i class="fa-solid fa-magnifying-glass"></i></div>' +
         '<p class="empty-state__text">No vehicles match your filters. Try adjusting your search.</p>' +
       "</div>";
     return;
@@ -1074,7 +1074,7 @@ function renderRentTab() {
   if (rentUnits.length === 0) {
     content.innerHTML =
       '<div class="empty-state" style="padding:var(--sp-16) 0;">' +
-        '<div class="empty-state__icon">\ud83d\udd11</div>' +
+        '<div class="empty-state__icon"><i class="fa-solid fa-key"></i></div>' +
         '<p class="empty-state__text">No rental units available at the moment. Please check back soon.</p>' +
         '<button class="btn btn--primary" onclick="navigateTo(\'contact\')" type="button" style="margin-top:var(--sp-5);">Contact Us</button>' +
       "</div>";
@@ -1115,13 +1115,13 @@ function createRentCard(brand, unit, unitIndex, staggerIndex) {
         '<h3 class="rent-card__title">' + escapeHtml(brand.name + " " + unit.name) + "</h3>" +
         '<p class="rent-card__year">' + unit.year + " \u00b7 " + escapeHtml(unit.body) + "</p>" +
         '<div class="rent-card__specs">' +
-          '<span class="spec-chip">\u2699 ' + escapeHtml(unit.transmission) + "</span>" +
-          '<span class="spec-chip">\u26fd ' + escapeHtml(unit.fuel) + "</span>" +
-          '<span class="spec-chip">\ud83d\udccd ' + escapeHtml(unit.odometer) + "</span>" +
+          '<span class="spec-chip"><i class="fa-solid fa-gears"></i> ' + escapeHtml(unit.transmission) + "</span>" +
+          '<span class="spec-chip"><i class="fa-solid fa-gas-pump"></i> ' + escapeHtml(unit.fuel) + "</span>" +
+          '<span class="spec-chip"><i class="fa-solid fa-road"></i> ' + escapeHtml(unit.odometer) + "</span>" +
         "</div>" +
         '<div class="rent-card__rate">' + rateDisplay + "</div>" +
         '<button class="rent-card__cta" onclick="navigateTo(\'contact\')" type="button" ' +
-          'id="btnRent-' + brand.slug + "-" + unitIndex + '">Book Now \u2192</button>' +
+          'id="btnRent-' + brand.slug + "-" + unitIndex + '">Book Now <i class="fa-solid fa-arrow-right"></i></button>' +
       "</div>" +
     "</div>"
   );
@@ -1150,7 +1150,7 @@ function buildBrandOptions() {
 function createBenefitItem(title, desc) {
   return (
     '<div class="sell-benefit-item">' +
-      '<span class="sell-benefit-item__icon" aria-hidden="true">\u2713</span>' +
+      '<span class="sell-benefit-item__icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>' +
       "<div><strong>" + escapeHtml(title) + "</strong><p>" + escapeHtml(desc) + "</p></div>" +
     "</div>"
   );
@@ -1191,78 +1191,78 @@ function renderSellTab() {
 
             '<div class="wizard-step" id="sellStep1">' +
               '<h3 class="sell-wizard-card__title">Vehicle Details</h3>' +
-              '<div class="contact-form__row">' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeBrand">Brand</label>' +
-                  '<select class="contact-form__select" id="tradeBrand">' + buildBrandOptions() + "</select></div>" +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeModel">Model / Name <span class="sell-required">*</span></label>' +
-                  '<input class="contact-form__input" type="text" id="tradeModel" placeholder="e.g. Civic 1.5 RS Turbo" required></div>' +
+              '<div class="sell-form__row">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeBrand">Brand</label>' +
+                  '<select class="sell-form__select" id="tradeBrand">' + buildBrandOptions() + "</select></div>" +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeModel">Model / Name <span class="sell-required">*</span></label>' +
+                  '<input class="sell-form__input" type="text" id="tradeModel" placeholder="e.g. Civic 1.5 RS Turbo" required></div>' +
               "</div>" +
-              '<div class="contact-form__row">' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeVariant">Variant / Trim</label>' +
-                  '<input class="contact-form__input" type="text" id="tradeVariant" placeholder="e.g. 1.5 V AT"></div>' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeYear">Year Model <span class="sell-required">*</span></label>' +
-                  '<input class="contact-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required></div>' +
+              '<div class="sell-form__row">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeVariant">Variant / Trim</label>' +
+                  '<input class="sell-form__input" type="text" id="tradeVariant" placeholder="e.g. 1.5 V AT"></div>' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeYear">Year Model <span class="sell-required">*</span></label>' +
+                  '<input class="sell-form__input" type="number" id="tradeYear" placeholder="2020" min="1990" max="2030" required></div>' +
               "</div>" +
-              '<div class="contact-form__row">' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeColor">Color</label>' +
-                  '<input class="contact-form__input" type="text" id="tradeColor" placeholder="e.g. Pearl White"></div>' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeOdometer">Odometer Reading</label>' +
-                  '<input class="contact-form__input" type="text" id="tradeOdometer" placeholder="e.g. 45,000 km"></div>' +
+              '<div class="sell-form__row">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeColor">Color</label>' +
+                  '<input class="sell-form__input" type="text" id="tradeColor" placeholder="e.g. Pearl White"></div>' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeOdometer">Odometer Reading</label>' +
+                  '<input class="sell-form__input" type="text" id="tradeOdometer" placeholder="e.g. 45,000 km"></div>' +
               "</div>" +
-              '<div class="contact-form__row">' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeBody">Body Type <span class="sell-required">*</span></label>' +
-                  '<select class="contact-form__select" id="tradeBody">' +
+              '<div class="sell-form__row">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeBody">Body Type <span class="sell-required">*</span></label>' +
+                  '<select class="sell-form__select" id="tradeBody">' +
                     '<option value="Sedan">Sedan</option><option value="SUV">SUV</option><option value="Pickup">Pickup</option>' +
                     '<option value="MPV">MPV</option><option value="Hatchback">Hatchback</option><option value="Van">Van</option>' +
                     '<option value="Coupe">Coupe</option><option value="Other">Other</option>' +
                   "</select></div>" +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeTransmission">Transmission <span class="sell-required">*</span></label>' +
-                  '<select class="contact-form__select" id="tradeTransmission">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeTransmission">Transmission <span class="sell-required">*</span></label>' +
+                  '<select class="sell-form__select" id="tradeTransmission">' +
                     '<option value="Automatic">Automatic</option><option value="Manual">Manual</option>' +
                     '<option value="CVT">CVT</option><option value="DCT">DCT (Dual Clutch)</option>' +
                   "</select></div>" +
               "</div>" +
-              '<div class="contact-form__row">' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeFuel">Fuel Type <span class="sell-required">*</span></label>' +
-                  '<select class="contact-form__select" id="tradeFuel">' +
+              '<div class="sell-form__row">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeFuel">Fuel Type <span class="sell-required">*</span></label>' +
+                  '<select class="sell-form__select" id="tradeFuel">' +
                     '<option value="Gasoline">Gasoline</option><option value="Diesel">Diesel</option>' +
                     '<option value="Hybrid">Hybrid</option><option value="Electric">Electric</option>' +
                   "</select></div>" +
-                '<div class="contact-form__field"><label class="contact-form__label" for="tradeOwners">Previous Owners</label>' +
-                  '<select class="contact-form__select" id="tradeOwners">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="tradeOwners">Previous Owners</label>' +
+                  '<select class="sell-form__select" id="tradeOwners">' +
                     '<option value="1st">1st Owner</option><option value="2nd">2nd Owner</option><option value="3rd+">3rd Owner or More</option>' +
                   "</select></div>" +
               "</div>" +
-              '<div class="contact-form__field"><label class="contact-form__label" for="tradePrice">Asking Price (\u20b1) <span class="sell-required">*</span></label>' +
-                '<input class="contact-form__input" type="number" id="tradePrice" placeholder="e.g. 850000" min="1" required></div>' +
-              '<button type="button" class="contact-form__submit" id="btnSellNext" style="margin-top:var(--sp-5);">' +
-                '<span>Continue</span><span class="contact-form__submit-icon">&rarr;</span>' +
+              '<div class="sell-form__field"><label class="sell-form__label" for="tradePrice">Asking Price (\u20b1) <span class="sell-required">*</span></label>' +
+                '<input class="sell-form__input" type="number" id="tradePrice" placeholder="e.g. 850000" min="1" required></div>' +
+              '<button type="button" class="sell-form__submit" id="btnSellNext" style="margin-top:var(--sp-5);">' +
+                '<span>Continue</span><span class="sell-form__submit-icon"><i class="fa-solid fa-arrow-right"></i></span>' +
               "</button>" +
             "</div>" +
 
             '<div class="wizard-step" id="sellStep2" style="display:none;">' +
               '<h3 class="sell-wizard-card__title">Condition, Photos &amp; Your Details</h3>' +
-              '<div class="contact-form__field"><label class="contact-form__label">Overall Condition <span class="sell-required">*</span></label>' +
+              '<div class="sell-form__field"><label class="sell-form__label">Overall Condition <span class="sell-required">*</span></label>' +
                 '<div class="condition-radio-group" id="conditionGroup">' +
                   '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Excellent" id="condExcellent"><span class="condition-radio__label condition-radio__label--excellent">Excellent</span></label>' +
                   '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Good" id="condGood" checked><span class="condition-radio__label condition-radio__label--good">Good</span></label>' +
                   '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Fair" id="condFair"><span class="condition-radio__label condition-radio__label--fair">Fair</span></label>' +
                   '<label class="condition-radio"><input type="radio" name="tradeConditionRating" value="Poor" id="condPoor"><span class="condition-radio__label condition-radio__label--poor">Poor</span></label>' +
                 "</div></div>" +
-              '<div class="contact-form__field"><label class="contact-form__label" for="tradeRegStatus">Registration Status <span class="sell-required">*</span></label>' +
-                '<select class="contact-form__select" id="tradeRegStatus">' +
+              '<div class="sell-form__field"><label class="sell-form__label" for="tradeRegStatus">Registration Status <span class="sell-required">*</span></label>' +
+                '<select class="sell-form__select" id="tradeRegStatus">' +
                   '<option value="OR/CR Complete">OR/CR Complete</option><option value="Expired">Expired</option><option value="For Transfer">For Transfer</option>' +
                 "</select></div>" +
-              '<div class="contact-form__field"><label class="contact-form__label" for="tradeIssues">Known Issues</label>' +
-                '<textarea class="contact-form__textarea" id="tradeIssues" placeholder="Mechanical issues, body damage, accidents, etc. Leave blank if none." style="min-height:80px;"></textarea></div>' +
-              '<div class="contact-form__field"><label class="contact-form__label" for="tradeDescription">Description</label>' +
-                '<textarea class="contact-form__textarea" id="tradeDescription" placeholder="Highlight your car\'s best features, recent servicing, accessories, or reasons for selling..." style="min-height:90px;"></textarea></div>' +
-              '<div class="contact-form__field">' +
-                '<label class="contact-form__label">Photos <span class="sell-required-note">(up to 7 \u00b7 auto-compressed)</span></label>' +
+              '<div class="sell-form__field"><label class="sell-form__label" for="tradeIssues">Known Issues</label>' +
+                '<textarea class="sell-form__textarea" id="tradeIssues" placeholder="Mechanical issues, body damage, accidents, etc. Leave blank if none." style="min-height:80px;"></textarea></div>' +
+              '<div class="sell-form__field"><label class="sell-form__label" for="tradeDescription">Description</label>' +
+                '<textarea class="sell-form__textarea" id="tradeDescription" placeholder="Highlight your car\'s best features, recent servicing, accessories, or reasons for selling..." style="min-height:90px;"></textarea></div>' +
+              '<div class="sell-form__field">' +
+                '<label class="sell-form__label">Photos <span class="sell-required-note">(up to 7 \u00b7 auto-compressed)</span></label>' +
                 '<div class="photo-upload-zone" id="photoUploadZone" role="button" tabindex="0" aria-label="Click to upload photos">' +
                   '<input type="file" id="photoFileInput" accept="image/*" multiple style="display:none;">' +
                   '<div class="photo-upload-zone__inner">' +
-                    '<div class="photo-upload-zone__icon">\ud83d\udcf7</div>' +
+                    '<div class="photo-upload-zone__icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>' +
                     '<p class="photo-upload-zone__text">Click or drag photos here</p>' +
                     '<p class="photo-upload-zone__hint">JPEG &nbsp;\u00b7&nbsp; PNG &nbsp;\u00b7&nbsp; WEBP &nbsp;\u00b7&nbsp; Max 7 photos &nbsp;\u00b7&nbsp; Auto-compressed</p>' +
                   "</div>" +
@@ -1270,18 +1270,18 @@ function renderSellTab() {
                 '<p class="photo-counter" id="photoCounter" style="display:none;"></p>' +
                 '<div class="photo-preview-grid" id="photoPreviewGrid"></div>' +
               "</div>" +
-              '<div class="contact-form__row">' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="sellName">Full Name <span class="sell-required">*</span></label>' +
-                  '<input class="contact-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required></div>' +
-                '<div class="contact-form__field"><label class="contact-form__label" for="sellEmail">Email Address <span class="sell-required">*</span></label>' +
-                  '<input class="contact-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required></div>' +
+              '<div class="sell-form__row">' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="sellName">Full Name <span class="sell-required">*</span></label>' +
+                  '<input class="sell-form__input" type="text" id="sellName" placeholder="Juan Dela Cruz" required></div>' +
+                '<div class="sell-form__field"><label class="sell-form__label" for="sellEmail">Email Address <span class="sell-required">*</span></label>' +
+                  '<input class="sell-form__input" type="email" id="sellEmail" placeholder="juan@email.com" required></div>' +
               "</div>" +
-              '<div class="contact-form__field"><label class="contact-form__label" for="sellPhone">Phone Number</label>' +
-                '<input class="contact-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX"></div>' +
+              '<div class="sell-form__field"><label class="sell-form__label" for="sellPhone">Phone Number</label>' +
+                '<input class="sell-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX"></div>' +
               '<div class="wizard-actions">' +
-                '<button type="button" class="btn btn--outline" id="btnSellBack">&larr; Back</button>' +
-                '<button type="submit" class="contact-form__submit" id="btnSellSubmit">' +
-                  '<span id="btnSellSubmitText">Submit Offer</span><span class="contact-form__submit-icon">&rarr;</span>' +
+                '<button type="button" class="btn btn--outline" id="btnSellBack"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
+                '<button type="submit" class="sell-form__submit" id="btnSellSubmit">' +
+                  '<span id="btnSellSubmitText">Submit Offer</span><span class="sell-form__submit-icon"><i class="fa-solid fa-arrow-right"></i></span>' +
                 "</button>" +
               "</div>" +
               '<p class="upload-progress-text" id="uploadProgressText" style="display:none;"></p>' +
@@ -1795,7 +1795,7 @@ function showContactToast() {
   toast.setAttribute("role", "status");
   toast.setAttribute("aria-live", "polite");
   toast.innerHTML =
-    '<span class="contact-toast__icon">✓</span>' +
+    '<span class="contact-toast__icon"><i class="fa-solid fa-check"></i></span>' +
     '<span>Message sent successfully! We\'ll get back to you soon.</span>';
 
   document.body.appendChild(toast);
