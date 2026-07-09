@@ -1506,7 +1506,10 @@ function showSellError(msg) {
   el.textContent = msg;
   var step2 = document.getElementById("sellStep2");
   if (step2) step2.appendChild(el);
-  setTimeout(functio/** Handle contact form submission with validation and toast */
+  setTimeout(function () { if (el.parentNode) el.remove(); }, 4000);
+}
+
+/** Handle contact form submission with validation and toast */
 function handleContactFormSubmit(e) {
   e.preventDefault();
 
