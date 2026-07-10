@@ -2499,6 +2499,147 @@ ul, ol {
   background: var(--color-accent);
   border-radius: var(--radius-pill);
 }
+/* ================================================================
+   BRAND SELECTION GRID
+   ================================================================ */
+.brand-selection {
+  padding: var(--sp-6) 0;
+}
+
+.brand-selection__header {
+  text-align: center;
+  margin-bottom: var(--sp-8);
+}
+
+.brand-selection__title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--sp-2);
+}
+
+.brand-selection__subtitle {
+  font-size: var(--fs-md);
+  color: var(--color-text-secondary);
+}
+
+.brand-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-5);
+}
+
+.brand-selection-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-6) var(--sp-4);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.brand-selection-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(227, 24, 55, 0.10), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.brand-selection-card:active {
+  transform: translateY(-1px);
+}
+
+.brand-selection-card__logo-wrap {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  padding: var(--sp-3);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.brand-selection-card:hover .brand-selection-card__logo-wrap {
+  background: var(--color-accent-soft);
+}
+
+.brand-selection-card__logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.brand-selection-card__icon {
+  font-size: 32px;
+  color: var(--color-accent);
+}
+
+.brand-selection-card__name {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.brand-selection-card__count {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-muted);
+}
+
+.brand-selection-card--view-all {
+  border-style: dashed;
+  border-color: var(--color-border-light);
+}
+
+.brand-selection-card--view-all:hover {
+  border-style: solid;
+  border-color: var(--color-accent);
+}
+
+/* Back to brands button */
+.inventory-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-4);
+  font-family: var(--font-family);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+
+.inventory-back-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.inventory-back-btn i {
+  font-size: var(--fs-xs);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.inventory-back-btn:hover i {
+  transform: translateX(-3px);
+}
 
 /* Buy Filters */
 .inventory-filter-bar {
@@ -3036,6 +3177,10 @@ ul, ol {
    RESPONSIVE SHOWROOM MEDIA QUERIES
    ================================================================ */
 @media (max-width: 1024px) {
+  .brand-selection-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   .inventory-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--sp-5);
@@ -3072,6 +3217,20 @@ ul, ol {
 }
 
 @media (max-width: 480px) {
+  .brand-selection-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-3);
+  }
+
+  .brand-selection-card {
+    padding: var(--sp-4) var(--sp-3);
+  }
+
+  .brand-selection-card__logo-wrap {
+    width: 60px;
+    height: 60px;
+  }
+
   .inventory-filter-bar {
     grid-template-columns: 1fr;
   }

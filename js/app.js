@@ -846,6 +846,12 @@ var _sellPhotos = [];
 /** Active filter state for the Buy tab */
 var _showroomFilters = { brand: "all", body: "all", price: "all", fuel: "all" };
 
+/** Currently selected brand on the Showroom (null = show brand grid, slug = filtered, "all" = view all) */
+var _showroomSelectedBrand = null;
+
+/** Currently active showroom tab ("buy" | "rent" | "sell") */
+var _showroomActiveTab = "buy";
+
 /**
  * Renders the Showroom page and activates the given tab.
  * @param {string} [activeTab="buy"] - "buy" | "rent" | "sell"
@@ -887,14 +893,108 @@ function switchShowroomTab(tab) {
 
 /** Routes to the correct tab render function */
 function renderShowroomTab(tab) {
+  _showroomActiveTab = tab;
   if (tab === "buy") {
     _showroomFilters = { brand: "all", body: "all", price: "all", fuel: "all" };
     renderBuyTab();
   } else if (tab === "rent") {
     renderRentTab();
   } else if (tab === "sell") {
+    _showroomSelectedBrand = null;
     renderSellTab();
   }
+}
+
+/* ================================================================
+   BRAND SELECTION GRID
+   ================================================================ */
+
+/**
+ * Counts available units for a specific brand and tab type.
+ * @param {Object} brand - Brand object from BRANDS array
+ * @param {string} tabType - "buy" or "rent"
+ * @returns {number}
+ */
+function countBrandUnits(brand, tabType) {
+  var count = 0;
+  for (var u = 0; u < brand.units.length; u++) {
+    var unit = brand.units[u];
+    if (unit.active === false) continue;
+    if (tabType === "buy" && unit.listingType !== "rent") count++;
+    if (tabType === "rent" && unit.listingType === "rent") count++;
+  }
+  return count;
+}
+
+/**
+ * Renders the brand selection grid for Buy or Rent tabs.
+ * @param {string} tabType - "buy" or "rent"
+ */
+function renderBrandSelectionGrid(tabType) {
+  var content = document.getElementById("showroomContent");
+  if (!content) return;
+
+  var label = tabType === "buy" ? "purchase" : "rent";
+  var totalUnits = tabType === "buy" ? getAllSaleUnits().length : getAllRentUnits().length;
+
+  var html =
+    '<div class="brand-selection">' +
+      '<div class="brand-selection__header reveal">' +
+        '<h3 class="brand-selection__title">Select a Brand</h3>' +
+        '<p class="brand-selection__subtitle">Choose a brand to browse vehicles available for ' + label + '</p>' +
+      '</div>' +
+      '<div class="brand-selection-grid">';
+
+  for (var i = 0; i < BRANDS.length; i++) {
+    var brand = BRANDS[i];
+    var count = countBrandUnits(brand, tabType);
+    html +=
+      '<div class="brand-selection-card reveal" ' +
+        'style="transition-delay:' + (i * 40) + 'ms" ' +
+        'onclick="selectShowroomBrand(\'' + brand.slug + '\')" ' +
+        'role="button" tabindex="0" ' +
+        'aria-label="' + escapeHtml(brand.name) + ' - ' + count + ' vehicle' + (count !== 1 ? 's' : '') + '">' +
+        '<div class="brand-selection-card__logo-wrap">' +
+          '<img class="brand-selection-card__logo" src="' + brand.logo + '" ' +
+            'alt="' + escapeHtml(brand.name) + '" loading="lazy" ' +
+            'onerror="this.style.display=\'none\'">' +
+        '</div>' +
+        '<span class="brand-selection-card__name">' + escapeHtml(brand.name) + '</span>' +
+        '<span class="brand-selection-card__count">' + count + ' vehicle' + (count !== 1 ? 's' : '') + '</span>' +
+      '</div>';
+  }
+
+  html +=
+      '<div class="brand-selection-card brand-selection-card--view-all reveal" ' +
+        'style="transition-delay:' + (BRANDS.length * 40) + 'ms" ' +
+        'onclick="selectShowroomBrand(\'all\')" ' +
+        'role="button" tabindex="0" ' +
+        'aria-label="View all brands - ' + totalUnits + ' vehicle' + (totalUnits !== 1 ? 's' : '') + '">' +
+        '<div class="brand-selection-card__logo-wrap">' +
+          '<i class="fa-solid fa-layer-group brand-selection-card__icon"></i>' +
+        '</div>' +
+        '<span class="brand-selection-card__name">View All</span>' +
+        '<span class="brand-selection-card__count">' + totalUnits + ' vehicle' + (totalUnits !== 1 ? 's' : '') + '</span>' +
+      '</div>';
+
+  html += '</div></div>';
+  content.innerHTML = html;
+  setTimeout(observeRevealElements, 60);
+}
+
+/**
+ * Sets the selected brand and re-renders the current tab.
+ * @param {string} slug - Brand slug or "all"
+ */
+function selectShowroomBrand(slug) {
+  _showroomSelectedBrand = slug;
+  switchShowroomTab(_showroomActiveTab);
+}
+
+/** Resets brand selection and shows the brand grid again */
+function backToBrands() {
+  _showroomSelectedBrand = null;
+  switchShowroomTab(_showroomActiveTab);
 }
 
 /* ================================================================
@@ -919,21 +1019,46 @@ function getAllSaleUnits() {
   return result;
 }
 
-/** Renders the Buy tab: filter bar + flat inventory grid */
+/** Renders the Buy tab: brand grid gate OR filter bar + inventory grid */
 function renderBuyTab() {
   var content = document.getElementById("showroomContent");
   if (!content) return;
 
+  /* Gate: show brand selection grid if no brand is chosen yet */
+  if (!_showroomSelectedBrand) {
+    renderBrandSelectionGrid("buy");
+    return;
+  }
+
+  /* Determine selected brand display name */
+  var selectedBrandName = "All Brands";
+  if (_showroomSelectedBrand !== "all") {
+    for (var s = 0; s < BRANDS.length; s++) {
+      if (BRANDS[s].slug === _showroomSelectedBrand) {
+        selectedBrandName = BRANDS[s].name;
+        break;
+      }
+    }
+  }
+
   var brandOptions = BRANDS.map(function (b) {
-    return '<option value="' + escapeHtml(b.name.toLowerCase()) + '">' + escapeHtml(b.name) + "</option>";
+    return '<option value="' + escapeHtml(b.name.toLowerCase()) + '"' +
+      (b.slug === _showroomSelectedBrand ? ' selected' : '') +
+      '>' + escapeHtml(b.name) + "</option>";
   }).join("");
 
+  var backBtnHtml =
+    '<button class="inventory-back-btn reveal" onclick="backToBrands()" type="button">' +
+      '<i class="fa-solid fa-arrow-left"></i> Back to Brands' +
+    '</button>';
+
   content.innerHTML =
+    backBtnHtml +
     '<div class="inventory-filter-bar reveal">' +
       '<div class="inventory-filter-group">' +
         '<label class="inventory-filter-label" for="filterBrand">Brand</label>' +
         '<select class="showroom-filter-select" id="filterBrand">' +
-          '<option value="all">All Brands</option>' + brandOptions +
+          '<option value="all"' + (_showroomSelectedBrand === 'all' ? ' selected' : '') + '>All Brands</option>' + brandOptions +
         "</select>" +
       "</div>" +
       '<div class="inventory-filter-group">' +
@@ -972,13 +1097,22 @@ function renderBuyTab() {
     '<p class="inventory-results-bar" id="inventoryResultsBar"></p>' +
     '<div class="inventory-grid" id="inventoryGrid"></div>';
 
-  renderInventoryGrid(getAllSaleUnits());
+  /* Pre-set brand filter if a specific brand was selected */
+  if (_showroomSelectedBrand !== "all") {
+    _showroomFilters.brand = _showroomSelectedBrand;
+    var brandEl = document.getElementById("filterBrand");
+    if (brandEl) brandEl.value = selectedBrandName.toLowerCase();
+  }
+
+  applyShowroomFilters();
 
   var filterIds = ["filterBrand", "filterBody", "filterPrice", "filterFuel"];
   for (var i = 0; i < filterIds.length; i++) {
     var el = document.getElementById(filterIds[i]);
     if (el) el.addEventListener("change", applyShowroomFilters);
   }
+
+  setTimeout(observeRevealElements, 60);
 }
 
 /** Reads current filter dropdowns and re-renders the inventory grid */
@@ -1064,29 +1198,51 @@ function getAllRentUnits() {
   return result;
 }
 
-/** Renders the Rent tab: rental unit cards with daily rates */
+/** Renders the Rent tab: brand grid gate OR rental unit cards with daily rates */
 function renderRentTab() {
   var content = document.getElementById("showroomContent");
   if (!content) return;
 
-  var rentUnits = getAllRentUnits();
-
-  if (rentUnits.length === 0) {
-    content.innerHTML =
-      '<div class="empty-state" style="padding:var(--sp-16) 0;">' +
-        '<div class="empty-state__icon"><i class="fa-solid fa-key"></i></div>' +
-        '<p class="empty-state__text">No rental units available at the moment. Please check back soon.</p>' +
-        '<button class="btn btn--primary" onclick="navigateTo(\'contact\')" type="button" style="margin-top:var(--sp-5);">Contact Us</button>' +
-      "</div>";
+  /* Gate: show brand selection grid if no brand is chosen yet */
+  if (!_showroomSelectedBrand) {
+    renderBrandSelectionGrid("rent");
     return;
   }
 
-  var html = '<div class="inventory-grid inventory-grid--rent">';
+  var allRent = getAllRentUnits();
+
+  /* Filter by selected brand if not "all" */
+  var rentUnits = allRent;
+  if (_showroomSelectedBrand !== "all") {
+    rentUnits = allRent.filter(function (item) {
+      return item.brand.slug === _showroomSelectedBrand;
+    });
+  }
+
+  var backBtnHtml =
+    '<button class="inventory-back-btn reveal" onclick="backToBrands()" type="button">' +
+      '<i class="fa-solid fa-arrow-left"></i> Back to Brands' +
+    '</button>';
+
+  if (rentUnits.length === 0) {
+    content.innerHTML =
+      backBtnHtml +
+      '<div class="empty-state" style="padding:var(--sp-16) 0;">' +
+        '<div class="empty-state__icon"><i class="fa-solid fa-key"></i></div>' +
+        '<p class="empty-state__text">No rental units available for this brand. Try another brand or view all.</p>' +
+        '<button class="btn btn--primary" onclick="backToBrands()" type="button" style="margin-top:var(--sp-5);">Browse Other Brands</button>' +
+      "</div>";
+    setTimeout(observeRevealElements, 60);
+    return;
+  }
+
+  var html = backBtnHtml + '<div class="inventory-grid inventory-grid--rent">';
   for (var i = 0; i < rentUnits.length; i++) {
     html += createRentCard(rentUnits[i].brand, rentUnits[i].unit, rentUnits[i].index, i);
   }
   html += "</div>";
   content.innerHTML = html;
+  setTimeout(observeRevealElements, 60);
 }
 
 /**
