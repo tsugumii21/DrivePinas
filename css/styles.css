@@ -264,6 +264,12 @@ ul, ol {
   transform: translateY(0);
 }
 
+/* Disable card-specific animations in Brand View to prevent double-translation stutter with the page entrance */
+#view-brand .reveal-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 /* Stagger children */
 .stagger-children > * {
