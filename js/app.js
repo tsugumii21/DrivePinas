@@ -628,7 +628,8 @@ function switchGalleryImage(thumbEl) {
 
 function createCarCard(brand, unit, unitIndex, staggerIndex, showFeaturedBadge) {
   var card = document.createElement("article");
-  card.className = "car-card" + (unit.sold ? " car-card--sold" : "");
+  card.className = "car-card reveal-card" + (unit.sold ? " car-card--sold" : "");
+  card.style.transitionDelay = (staggerIndex * ANIMATION_CONFIG.staggerDelayMs) + "ms";
   card.setAttribute("role", "button");
   card.setAttribute("tabindex", "0");
   card.setAttribute("aria-label", "View " + brand.name + " " + unit.name);
@@ -949,7 +950,7 @@ function renderBrandSelectionGrid(tabType) {
     var brand = BRANDS[i];
     var count = countBrandUnits(brand, tabType);
     html +=
-      '<div class="brand-selection-card reveal" ' +
+      '<div class="brand-selection-card reveal-card" ' +
         'style="transition-delay:' + (i * 40) + 'ms" ' +
         'onclick="selectShowroomBrand(\'' + brand.slug + '\')" ' +
         'role="button" tabindex="0" ' +
@@ -965,7 +966,7 @@ function renderBrandSelectionGrid(tabType) {
   }
 
   html +=
-      '<div class="brand-selection-card brand-selection-card--view-all reveal" ' +
+      '<div class="brand-selection-card brand-selection-card--view-all reveal-card" ' +
         'style="transition-delay:' + (BRANDS.length * 40) + 'ms" ' +
         'onclick="selectShowroomBrand(\'all\')" ' +
         'role="button" tabindex="0" ' +
@@ -1260,7 +1261,7 @@ function createRentCard(brand, unit, unitIndex, staggerIndex) {
     : '<span class="rent-card__rate-call">Contact for Rate</span>';
 
   return (
-    '<div class="rent-card reveal" style="transition-delay:' + staggerIndex * ANIMATION_CONFIG.staggerDelayMs + 'ms">' +
+    '<div class="rent-card reveal-card" style="transition-delay:' + staggerIndex * ANIMATION_CONFIG.staggerDelayMs + 'ms">' +
       '<div class="rent-card__image-wrap">' +
         '<img class="rent-card__image" src="' + imgSrc + '" ' +
           'alt="' + escapeHtml(brand.name + " " + unit.name) + '" loading="lazy" ' +
@@ -1980,7 +1981,7 @@ var revealObserver = null;
 function initRevealObserver() {
   if (!("IntersectionObserver" in window)) {
     // Fallback: show everything immediately
-    var revealEls = document.querySelectorAll(".reveal, .reveal--left, .reveal--scale, .stagger-children");
+    var revealEls = document.querySelectorAll(".reveal, .reveal--left, .reveal--scale, .reveal-card, .stagger-children");
     for (var i = 0; i < revealEls.length; i++) {
       revealEls[i].classList.add("is-visible");
     }
@@ -2014,7 +2015,7 @@ function observeRevealElements() {
   if (!revealObserver) return;
 
   var elements = document.querySelectorAll(
-    ".reveal:not(.is-visible), .reveal--left:not(.is-visible), .reveal--scale:not(.is-visible), .stagger-children:not(.is-visible)"
+    ".reveal:not(.is-visible), .reveal--left:not(.is-visible), .reveal--scale:not(.is-visible), .reveal-card:not(.is-visible), .stagger-children:not(.is-visible)"
   );
   for (var i = 0; i < elements.length; i++) {
     revealObserver.observe(elements[i]);

@@ -251,6 +251,20 @@ ul, ol {
   transform: translateY(0) translateX(0) scale(1);
 }
 
+.reveal-card {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 250ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
 /* Stagger children */
 .stagger-children > * {
   opacity: 0;
@@ -966,13 +980,15 @@ ul, ol {
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all var(--duration-base) var(--ease-out);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
   position: relative;
 }
 
 .car-card:hover {
-  box-shadow: var(--shadow-xl);
-  border-color: transparent;
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(227, 24, 55, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .car-card__image-wrap {
@@ -2540,19 +2556,13 @@ ul, ol {
   border-radius: var(--radius-xl);
   cursor: pointer;
   transition:
-    transform var(--duration-fast) var(--ease-out),
     border-color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .brand-selection-card:hover {
-  transform: translateY(-4px);
   border-color: var(--color-accent);
   box-shadow: 0 8px 24px rgba(227, 24, 55, 0.10), 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.brand-selection-card:active {
-  transform: translateY(-1px);
 }
 
 .brand-selection-card__logo-wrap {
@@ -2708,13 +2718,14 @@ ul, ol {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all var(--duration-base) cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    border-color var(--duration-base) cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow var(--duration-base) cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rent-card:hover {
-  transform: translateY(-4px);
   border-color: var(--color-accent);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 8px 24px rgba(227, 24, 55, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .rent-card__image-wrap {
