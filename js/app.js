@@ -156,15 +156,7 @@ function handleRoute() {
 
   // Route to correct view
   switch (route) {
-    case "brand":
-      if (parts[1]) {
-        renderBrandPage(parts[1]);
-        showView("view-brand");
-        setActiveNav("showroom");
-      } else {
-        navigateTo("showroom");
-      }
-      break;
+
 
     case "unit":
       if (parts[1] && parts[2] !== undefined) {
@@ -283,7 +275,9 @@ function renderBrandGrid() {
 /** Factory to avoid closure issues in loops */
 function createBrandClickHandler(slug) {
   return function () {
-    navigateTo("brand/" + slug);
+    _showroomSelectedBrand = slug;
+    _showroomActiveTab = "buy";
+    navigateTo("showroom");
   };
 }
 
@@ -291,7 +285,9 @@ function createKeyHandler(slug) {
   return function (e) {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      navigateTo("brand/" + slug);
+      _showroomSelectedBrand = slug;
+      _showroomActiveTab = "buy";
+      navigateTo("showroom");
     }
   };
 }
@@ -316,76 +312,7 @@ function renderFeaturedCars() {
   }
 }
 
-/* ================================================================
-   RENDER: BRAND PAGE
-   ================================================================ */
 
-function renderBrandPage(slug) {
-  var brand = null;
-  for (var b = 0; b < BRANDS.length; b++) {
-    if (BRANDS[b].slug === slug) {
-      brand = BRANDS[b];
-      break;
-    }
-  }
-
-  if (!brand) {
-    navigateTo("home");
-    return;
-  }
-
-  // Breadcrumb
-  var breadcrumb = document.getElementById("brandBreadcrumb");
-  if (breadcrumb) {
-    breadcrumb.innerHTML =
-      '<a href="#showroom">Showroom</a>' +
-      '<span class="page-header__breadcrumb-sep">›</span>' +
-      '<span class="page-header__breadcrumb-current">' + escapeHtml(brand.name) + "</span>";
-  }
-
-  // Header
-  var header = document.getElementById("brandHeader");
-  if (header) {
-    var availableCount = 0;
-    for (var u = 0; u < brand.units.length; u++) {
-      if (!brand.units[u].sold && brand.units[u].active !== false) availableCount++;
-    }
-
-    header.innerHTML =
-      '<img class="page-header__brand-logo" src="' + escapeHtml(brand.logo) + '" ' +
-        'alt="' + escapeHtml(brand.name) + ' logo" ' +
-        'onerror="this.style.display=\'none\'">' +
-      "<div>" +
-        '<h1 class="page-header__title">' + escapeHtml(brand.name) + "</h1>" +
-        '<p class="page-header__subtitle">' + availableCount + " vehicle" + (availableCount !== 1 ? "s" : "") + " available</p>" +
-      "</div>";
-  }
-
-  // Car grid
-  var grid = document.getElementById("brandCarGrid");
-  if (!grid) return;
-  grid.innerHTML = "";
-
-  var visibleUnits = brand.units.filter(function(u) { return u.active !== false; });
-
-  if (visibleUnits.length === 0) {
-    grid.innerHTML =
-      '<div class="empty-state">' +
-        '<div class="empty-state__icon">🚗</div>' +
-        '<p class="empty-state__text">No units available at the moment. Check back soon!</p>' +
-      "</div>";
-    return;
-  }
-
-  for (var i = 0; i < brand.units.length; i++) {
-    if (brand.units[i].active === false) continue;
-    var card = createCarCard(brand, brand.units[i], i, i, false);
-    grid.appendChild(card);
-  }
-
-  // Update page title (polish pass)
-  document.title = brand.name + " Cars — " + SITE_CONFIG.name;
-}
 
 /* ================================================================
    RENDER: UNIT DETAIL PAGE
@@ -413,13 +340,14 @@ function renderUnitPage(slug, unitIndex) {
   }
   var fullName = unit.year + " " + brand.name + " " + unit.name;
 
-  // Breadcrumb — first crumb goes back to the brand page
+  // Breadcrumb — first crumb goes back to the showroom, second crumb filters showroom by brand
   var breadcrumb = document.getElementById("unitBreadcrumb");
   if (breadcrumb) {
+    var showroomTab = unit.listingType === 'rent' ? 'rent' : 'buy';
     breadcrumb.innerHTML =
-      '<a href="#showroom">Showroom</a>' +
+      '<a href="#showroom" onclick="_showroomSelectedBrand = null;">Showroom</a>' +
       '<span class="page-header__breadcrumb-sep">›</span>' +
-      '<a href="#brand/' + escapeHtml(brand.slug) + '">' + escapeHtml(brand.name) + "</a>" +
+      '<a href="#showroom" onclick="_showroomSelectedBrand = \'' + escapeHtml(brand.slug) + '\'; _showroomActiveTab = \'' + showroomTab + '\';">' + escapeHtml(brand.name) + "</a>" +
       '<span class="page-header__breadcrumb-sep">›</span>' +
       '<span class="page-header__breadcrumb-current">' + escapeHtml(unit.name) + "</span>";
   }
@@ -567,6 +495,16 @@ function renderUnitPage(slug, unitIndex) {
   for (var i = 0; i < thumbs.length; i++) {
     thumbs[i].addEventListener("click", createThumbClickHandler(thumbs[i]));
     thumbs[i].addEventListener("keydown", createThumbKeyHandler(thumbs[i]));
+  }
+
+  // Wire up back button to return to the showroom filtered by this brand
+  var backBtn = document.getElementById("btnUnitBack");
+  if (backBtn) {
+    backBtn.onclick = function () {
+      _showroomSelectedBrand = brand.slug;
+      _showroomActiveTab = unit.listingType === 'rent' ? 'rent' : 'buy';
+      navigateTo("showroom");
+    };
   }
 
   // Update page title

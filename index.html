@@ -127,29 +127,15 @@
     </div>
 
     <!-- ============================================================
-         BRAND VIEW
-         ============================================================ -->
-    <div class="view" id="view-brand">
-      <div class="page-header">
-        <div class="container">
-          <div class="page-header__breadcrumb" id="brandBreadcrumb"></div>
-          <div class="page-header__brand" id="brandHeader"></div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="container">
-          <div class="car-grid" id="brandCarGrid"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================
          UNIT DETAIL VIEW
          ============================================================ -->
     <div class="view" id="view-unit">
       <div class="page-header">
         <div class="container">
-          <div class="page-header__breadcrumb" id="unitBreadcrumb"></div>
+          <div style="display:flex; align-items:center; gap:var(--sp-4); margin-bottom:var(--sp-4); flex-wrap:wrap;">
+            <button type="button" class="wizard-header-back" id="btnUnitBack"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <div class="page-header__breadcrumb" id="unitBreadcrumb" style="margin-bottom:0;"></div>
+          </div>
           <h2 class="page-header__title" id="unitTitle">Vehicle Details</h2>
         </div>
       </div>
