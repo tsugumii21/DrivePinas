@@ -1103,6 +1103,11 @@ function applyShowroomFilters() {
     fuel: fuelEl ? fuelEl.value : "all",
   };
 
+  // Sync back dropdown filter to global brand selection state
+  if (brandEl) {
+    _showroomSelectedBrand = brandEl.value;
+  }
+
   var filtered = getAllSaleUnits().filter(function (item) {
     var u = item.unit;
     var brandMatch = _showroomFilters.brand === "all" || item.brand.name.toLowerCase() === _showroomFilters.brand;
@@ -1148,6 +1153,9 @@ function renderInventoryGrid(units) {
     var card = createCarCard(units[i].brand, units[i].unit, units[i].index, i, false);
     grid.appendChild(card);
   }
+
+  // Polish: trigger reveal check since grid layout cards were dynamically re-injected
+  setTimeout(observeRevealElements, 60);
 }
 
 /* ================================================================
