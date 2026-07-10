@@ -3012,10 +3012,16 @@ ul, ol {
 
 .wizard-actions .btn {
   flex: 1;
-  padding: var(--sp-3.5);
-  font-weight: 700;
+  padding: var(--sp-4) var(--sp-6);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.wizard-actions .sell-form__submit,
 .wizard-actions .contact-form__submit {
   flex: 2;
   margin-top: 0;
