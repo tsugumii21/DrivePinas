@@ -1435,7 +1435,7 @@ function renderSellTab() {
               '<div class="sell-form__field"><label class="sell-form__label" for="sellPhone">Phone Number</label>' +
                 '<input class="sell-form__input" type="tel" id="sellPhone" placeholder="+63 9XX XXX XXXX"></div>' +
               '<div class="wizard-actions">' +
-                '<button type="button" class="btn btn--outline" id="btnSellBack"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
+                '<button type="button" class="btn btn--outline-dark" id="btnSellBack"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
                 '<button type="submit" class="sell-form__submit" id="btnSellSubmit">' +
                   '<span id="btnSellSubmitText">Submit Offer</span><span class="sell-form__submit-icon"><i class="fa-solid fa-arrow-right"></i></span>' +
                 "</button>" +
