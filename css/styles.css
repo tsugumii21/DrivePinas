@@ -2566,14 +2566,14 @@ ul, ol {
 }
 
 .brand-selection-card__logo-wrap {
-  width: 80px;
+  width: 120px;
   height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-lg);
   background: var(--color-bg);
-  padding: var(--sp-3);
+  padding: var(--sp-2);
   transition: background var(--duration-fast) var(--ease-out);
 }
 
@@ -3238,8 +3238,9 @@ ul, ol {
   }
 
   .brand-selection-card__logo-wrap {
-    width: 60px;
+    width: 90px;
     height: 60px;
+    padding: var(--sp-1);
   }
 
   .inventory-filter-bar {
