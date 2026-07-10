@@ -310,6 +310,41 @@ function renderFeaturedCars() {
     var card = createCarCard(featured[i].brand, featured[i].unit, featured[i].index, i, true);
     container.appendChild(card);
   }
+
+  // Initialize horizontal scroll button logic
+  var prevBtn = document.getElementById("btnFeaturedPrev");
+  var nextBtn = document.getElementById("btnFeaturedNext");
+
+  if (prevBtn && nextBtn) {
+    prevBtn.onclick = function () {
+      container.scrollBy({ left: -340, behavior: "smooth" });
+    };
+
+    nextBtn.onclick = function () {
+      container.scrollBy({ left: 340, behavior: "smooth" });
+    };
+
+    var updateFeaturedButtons = function () {
+      var scrollLeft = container.scrollLeft;
+      var maxScroll = container.scrollWidth - container.clientWidth;
+
+      if (scrollLeft <= 5) {
+        prevBtn.classList.add("is-hidden");
+      } else {
+        prevBtn.classList.remove("is-hidden");
+      }
+
+      if (scrollLeft >= maxScroll - 5) {
+        nextBtn.classList.add("is-hidden");
+      } else {
+        nextBtn.classList.remove("is-hidden");
+      }
+    };
+
+    container.onscroll = updateFeaturedButtons;
+    updateFeaturedButtons();
+    setTimeout(updateFeaturedButtons, 200);
+  }
 }
 
 

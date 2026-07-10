@@ -1188,31 +1188,78 @@ ul, ol {
 /* ================================================================
    FEATURED CARS — Horizontal scroll
    ================================================================ */
+.featured-scroll-container {
+  position: relative;
+}
+
 .featured-scroll {
   display: flex;
   gap: var(--sp-5);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: var(--sp-4);
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  padding-bottom: var(--sp-2);
   margin: 0 calc(-1 * var(--container-padding));
   padding-left: var(--container-padding);
   padding-right: var(--container-padding);
+  scrollbar-width: none;
 }
 
 .featured-scroll::-webkit-scrollbar {
-  height: 5px;
+  display: none;
 }
 
-.featured-scroll::-webkit-scrollbar-track {
-  background: transparent;
+.featured-scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--color-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  pointer-events: none;
 }
 
-.featured-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+.featured-scroll-btn--prev {
+  left: var(--sp-2);
+}
+
+.featured-scroll-btn--next {
+  right: var(--sp-2);
+}
+
+.featured-scroll-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-light);
+  border-color: var(--color-accent);
+  box-shadow: 0 6px 16px rgba(227, 24, 55, 0.25);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.featured-scroll-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.featured-scroll-container:hover .featured-scroll-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.featured-scroll-btn.is-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .featured-scroll .car-card {
@@ -1220,6 +1267,14 @@ ul, ol {
   max-width: 350px;
   flex-shrink: 0;
   scroll-snap-align: start;
+}
+
+@media (max-width: 768px) {
+  .featured-scroll-btn {
+    width: 38px;
+    height: 38px;
+    font-size: var(--fs-xs);
+  }
 }
 
 @media (max-width: 480px) {
