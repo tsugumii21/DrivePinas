@@ -696,10 +696,12 @@ ul, ol {
 .btn--primary:hover {
   background: var(--color-accent-hover);
   box-shadow: var(--shadow-accent);
+  color: var(--color-light);
 }
 
 .btn--primary:active {
   opacity: 0.9;
+  color: var(--color-light);
 }
 
 .btn--outline {
