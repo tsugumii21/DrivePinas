@@ -1342,7 +1342,7 @@ function renderSellTab() {
           '<div class="wizard-header">' +
             '<div style="display:flex; align-items:center; gap:var(--sp-4);">' +
               '<span class="wizard-step-label">Step <span id="wizardStepNum">1</span> of 2</span>' +
-              '<button type="button" class="wizard-header-back" id="btnSellHeaderBack" style="display:none;"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
+              '<button type="button" class="wizard-header-back" id="btnSellHeaderBack" style="display:inline-flex;"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
             '</div>' +
             '<div class="wizard-progress-track"><div class="wizard-progress-fill" id="wizardProgressFill" style="width:50%"></div></div>' +
           "</div>" +
@@ -1395,9 +1395,12 @@ function renderSellTab() {
               "</div>" +
               '<div class="sell-form__field"><label class="sell-form__label" for="tradePrice">Asking Price (\u20b1) <span class="sell-required">*</span></label>' +
                 '<input class="sell-form__input" type="number" id="tradePrice" placeholder="e.g. 850000" min="1" required></div>' +
-              '<button type="button" class="sell-form__submit" id="btnSellNext" style="margin-top:var(--sp-5);">' +
-                '<span>Continue</span><span class="sell-form__submit-icon"><i class="fa-solid fa-arrow-right"></i></span>' +
-              "</button>" +
+              '<div class="wizard-actions">' +
+                '<button type="button" class="btn btn--outline-dark" id="btnSellFirstStepBack"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
+                '<button type="button" class="sell-form__submit" id="btnSellNext">' +
+                  '<span>Continue</span><span class="sell-form__submit-icon"><i class="fa-solid fa-arrow-right"></i></span>' +
+                "</button>" +
+              "</div>" +
             "</div>" +
 
             '<div class="wizard-step" id="sellStep2" style="display:none;">' +
@@ -1506,8 +1509,6 @@ function initSellWizard() {
     step2.style.display = "block";
     if (stepNum) stepNum.textContent = "2";
     if (progressFill) progressFill.style.width = "100%";
-    var headerBackBtn = document.getElementById("btnSellHeaderBack");
-    if (headerBackBtn) headerBackBtn.style.display = "inline-flex";
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
@@ -1517,16 +1518,27 @@ function initSellWizard() {
     step1.style.display = "block";
     if (stepNum) stepNum.textContent = "1";
     if (progressFill) progressFill.style.width = "50%";
-    var headerBackBtn = document.getElementById("btnSellHeaderBack");
-    if (headerBackBtn) headerBackBtn.style.display = "none";
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   backBtn.addEventListener("click", handleBackAction);
 
+  var firstStepBackBtn = document.getElementById("btnSellFirstStepBack");
+  if (firstStepBackBtn) {
+    firstStepBackBtn.addEventListener("click", function () {
+      switchShowroomTab("buy");
+    });
+  }
+
   var headerBackBtn = document.getElementById("btnSellHeaderBack");
   if (headerBackBtn) {
-    headerBackBtn.addEventListener("click", handleBackAction);
+    headerBackBtn.addEventListener("click", function () {
+      if (stepNum && stepNum.textContent === "2") {
+        handleBackAction();
+      } else {
+        switchShowroomTab("buy");
+      }
+    });
   }
 
   // Photo upload zone interactions
