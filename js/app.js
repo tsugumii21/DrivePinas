@@ -1340,7 +1340,10 @@ function renderSellTab() {
       '<div class="sell-form-wrapper">' +
         '<div class="sell-wizard-card">' +
           '<div class="wizard-header">' +
-            '<span class="wizard-step-label">Step <span id="wizardStepNum">1</span> of 2</span>' +
+            '<div style="display:flex; align-items:center; gap:var(--sp-4);">' +
+              '<span class="wizard-step-label">Step <span id="wizardStepNum">1</span> of 2</span>' +
+              '<button type="button" class="wizard-header-back" id="btnSellHeaderBack" style="display:none;"><i class="fa-solid fa-arrow-left"></i> Back</button>' +
+            '</div>' +
             '<div class="wizard-progress-track"><div class="wizard-progress-fill" id="wizardProgressFill" style="width:50%"></div></div>' +
           "</div>" +
 
@@ -1503,17 +1506,28 @@ function initSellWizard() {
     step2.style.display = "block";
     if (stepNum) stepNum.textContent = "2";
     if (progressFill) progressFill.style.width = "100%";
+    var headerBackBtn = document.getElementById("btnSellHeaderBack");
+    if (headerBackBtn) headerBackBtn.style.display = "inline-flex";
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   // Go back to Step 1
-  backBtn.addEventListener("click", function () {
+  var handleBackAction = function () {
     step2.style.display = "none";
     step1.style.display = "block";
     if (stepNum) stepNum.textContent = "1";
     if (progressFill) progressFill.style.width = "50%";
+    var headerBackBtn = document.getElementById("btnSellHeaderBack");
+    if (headerBackBtn) headerBackBtn.style.display = "none";
     window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  };
+
+  backBtn.addEventListener("click", handleBackAction);
+
+  var headerBackBtn = document.getElementById("btnSellHeaderBack");
+  if (headerBackBtn) {
+    headerBackBtn.addEventListener("click", handleBackAction);
+  }
 
   // Photo upload zone interactions
   if (photoZone && fileInput) {

@@ -2970,6 +2970,35 @@ ul, ol {
   color: var(--color-text-muted);
 }
 
+.wizard-header-back {
+  background: transparent;
+  border: none;
+  font-family: var(--font-family);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 3px var(--sp-2.5);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.wizard-header-back:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.wizard-header-back i {
+  font-size: 10px;
+}
+
+
 .wizard-progress-track {
   flex: 1;
   height: 4px;
